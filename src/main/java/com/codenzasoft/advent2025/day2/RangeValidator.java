@@ -27,8 +27,12 @@ public class RangeValidator {
       final String line = lines.get(0);
       final List<String> textRanges = List.of(line.split(","));
       final List<Range> ranges = textRanges.stream().map(Range::parse).toList();
-      final long answer = new RangeValidator().computeMirrorTotal(ranges);
-      System.out.println("The sum of invalid mirror product IDs is: " + answer);
+      System.out.println(
+          "The sum of invalid mirror product IDs is: "
+              + new RangeValidator().computeMirrorTotal(ranges));
+      System.out.println(
+          "The sum of invalid subsequence product IDs is: "
+              + new RangeValidator().computeRepeatedSequenceTotal(ranges));
     }
   }
 

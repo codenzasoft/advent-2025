@@ -22,9 +22,11 @@ public record Range(long start, long end) {
   }
 
   /**
-   * Returns a list of invalid repeated sub-sequence {@link ProductId}s included in this {@link Range}.
+   * Returns a list of invalid repeated sub-sequence {@link ProductId}s included in this {@link
+   * Range}.
    *
-   * @return A list of invalid repeated sub-sequence {@link ProductId}s included in this {@link Range}.
+   * @return A list of invalid repeated sub-sequence {@link ProductId}s included in this {@link
+   *     Range}.
    */
   public List<ProductId> findRepeatedSequenceIds() {
     return stream().filter(ProductId::isRepeatedSequence).toList();
