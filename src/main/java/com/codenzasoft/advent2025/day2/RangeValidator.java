@@ -27,21 +27,35 @@ public class RangeValidator {
       final String line = lines.get(0);
       final List<String> textRanges = List.of(line.split(","));
       final List<Range> ranges = textRanges.stream().map(Range::parse).toList();
-      final long answer = new RangeValidator().computeTotal(ranges);
-      System.out.println("The sum of invalid product IDs is: " + answer);
+      final long answer = new RangeValidator().computeMirrorTotal(ranges);
+      System.out.println("The sum of invalid mirror product IDs is: " + answer);
     }
   }
 
   /**
-   * Returns the sum of all invalid {@link ProductId}s in the given {@link Range}s.
+   * Returns the sum of all invalid mirror {@link ProductId}s in the given {@link Range}s.
    *
    * @param ranges A list of {@link Range}s
-   * @return The sum of all invalid {@link ProductId}s in the given {@link Range}s.
+   * @return The sum of all invalid mirror {@link ProductId}s in the given {@link Range}s.
    */
-  public long computeTotal(final List<Range> ranges) {
+  public long computeMirrorTotal(final List<Range> ranges) {
     long total = 0;
     for (final Range range : ranges) {
-      total += range.findInvalidIds().stream().mapToLong(ProductId::value).sum();
+      total += range.findMirrorIds().stream().mapToLong(ProductId::value).sum();
+    }
+    return total;
+  }
+
+  /**
+   * Returns the sum of all invalid mirror {@link ProductId}s in the given {@link Range}s.
+   *
+   * @param ranges A list of {@link Range}s
+   * @return The sum of all invalid mirror {@link ProductId}s in the given {@link Range}s.
+   */
+  public long computeRepeatedSequenceTotal(final List<Range> ranges) {
+    long total = 0;
+    for (final Range range : ranges) {
+      total += range.findRepeatedSequenceIds().stream().mapToLong(ProductId::value).sum();
     }
     return total;
   }

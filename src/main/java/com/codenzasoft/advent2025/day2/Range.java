@@ -13,12 +13,21 @@ import java.util.stream.Stream;
 public record Range(long start, long end) {
 
   /**
-   * Returns a list of invalid {@link ProductId}s included in this {@link Range}.
+   * Returns a list of invalid mirror {@link ProductId}s included in this {@link Range}.
    *
-   * @return A list of invalid {@link ProductId}s included in this {@link Range}.
+   * @return A list of invalid mirror {@link ProductId}s included in this {@link Range}.
    */
-  public List<ProductId> findInvalidIds() {
-    return stream().filter(id -> !id.isValid()).toList();
+  public List<ProductId> findMirrorIds() {
+    return stream().filter(ProductId::isMirrorSequence).toList();
+  }
+
+  /**
+   * Returns a list of invalid repeated sub-sequence {@link ProductId}s included in this {@link Range}.
+   *
+   * @return A list of invalid repeated sub-sequence {@link ProductId}s included in this {@link Range}.
+   */
+  public List<ProductId> findRepeatedSequenceIds() {
+    return stream().filter(ProductId::isRepeatedSequence).toList();
   }
 
   /**

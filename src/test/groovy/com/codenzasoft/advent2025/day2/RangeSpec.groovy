@@ -18,7 +18,7 @@ class RangeSpec extends Specification {
         var range = Range.parse("1188511880-1188511890")
 
         when:
-        var invalid = range.findInvalidIds()
+        var invalid = range.findMirrorIds()
 
         then:
         invalid.size() == 1
@@ -30,7 +30,7 @@ class RangeSpec extends Specification {
         var range = Range.parse("11-22")
 
         when:
-        var invalid = range.findInvalidIds()
+        var invalid = range.findMirrorIds()
 
         then:
         invalid.size() == 2
