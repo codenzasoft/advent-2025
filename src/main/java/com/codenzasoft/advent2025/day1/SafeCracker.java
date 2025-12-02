@@ -9,6 +9,10 @@ import java.util.List;
  * should be to the left (toward lower numbers) or to the right (toward higher numbers). Then, the
  * rotation has a distance value which indicates how many clicks the dial should be rotated in that
  * direction.
+ *
+ * <p>There are two parts to the puzzle. Part 1 determines how many times the dial ends up pointing
+ * at zero (0), after a rotation is complete. Part 2 determines how many times the dial ends up
+ * pointing at or passing zero (0) at any time during the rotations.
  */
 public class SafeCracker {
 
@@ -26,6 +30,15 @@ public class SafeCracker {
     }
   }
 
+  /**
+   * Solves the puzzle according to part 1 rules. Returns the number of times the dial ends up
+   * pointing at zero at the end of each rotation.
+   *
+   * @param rotations A list of rotations to execute
+   * @param dialSize The size of the dial (number of notches)
+   * @param dialLocation The initial location the dial is pointing at
+   * @return The number of time the dial ends up pointing at zero.
+   */
   public int solve(final List<String> rotations, final int dialSize, final int dialLocation) {
     Dial dial = new Dial(dialSize, dialLocation);
     int answer = 0;
@@ -41,6 +54,16 @@ public class SafeCracker {
     return answer;
   }
 
+  /**
+   * Solves the puzzle according to part 2 rules. Returns the number of times the dial ends up
+   * pointing at or passing zero while executing the rotations.
+   *
+   * @param rotations A list of rotations to execute
+   * @param dialSize The size of the dial (number of notches)
+   * @param dialLocation The initial location the dial is pointing at
+   * @return The number of time the dial ends up pointing at zero or passing zero while executing
+   *     the rotations.
+   */
   public int solve0x434C49434B(
       final List<String> rotations, final int dialSize, final int dialLocation) throws IOException {
     Dial dial = new Dial(dialSize, dialLocation);
@@ -48,6 +71,7 @@ public class SafeCracker {
 
     for (final String instruction : rotations) {
       final Rotation outerRotation = Rotation.parse(instruction);
+      // execute the individual steps in the rotation instead of one step
       final Rotation innerRotation = new Rotation(outerRotation.direction(), 1);
       for (int i = 0; i < outerRotation.distance(); i++) {
         dial = dial.rotate(innerRotation);
