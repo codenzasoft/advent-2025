@@ -9,11 +9,29 @@ package com.codenzasoft.advent2025.day1;
  */
 public record Dial(int size, int location) {
 
+  public Dial rotate(final Direction direction, final int distance) {
+    switch (direction) {
+      case LEFT -> {
+        return new Dial(size, (location - distance) % size);
+      }
+      case RIGHT -> {
+        return new Dial(size, (location + distance) % size);
+      }
+      default -> {
+        return this;
+      }
+    }
+  }
+
+  public Dial rotate(final Rotation rotation) {
+    return rotate(rotation.direction(), rotation.distance());
+  }
+
   public Dial left(int distance) {
-    return new Dial(size, (location - distance) % size);
+    return rotate(Direction.LEFT, distance);
   }
 
   public Dial right(int distance) {
-    return new Dial(size, (location + distance) % size);
+    return rotate(Direction.RIGHT, distance);
   }
 }

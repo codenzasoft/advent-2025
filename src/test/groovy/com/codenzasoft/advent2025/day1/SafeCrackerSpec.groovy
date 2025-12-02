@@ -16,6 +16,18 @@ class SafeCrackerSpec extends Specification {
         answer == 3
     }
 
+    def "test a safe can be cracked using 0x434C49434B with a dial size of 5 starting at 0"() {
+        setup:
+        var rotations = ["R2", "L2", "R3", "R2", "L6", "R1"]
+        var cracker = new SafeCracker()
+
+        when:
+        var answer = cracker.solve0x434C49434B(rotations, 5, 0)
+
+        then:
+        answer == 4
+    }
+
     def "test a safe can be cracked with a dial size of 5 starting at 2"() {
         setup:
         var rotations = ["R2", "L2", "R3", "R2", "L6", "R1"]
@@ -26,5 +38,17 @@ class SafeCrackerSpec extends Specification {
 
         then:
         answer == 1
+    }
+
+    def "test a safe can be cracked using 0x434C49434B with a dial size of 5 starting at 2"() {
+        setup:
+        var rotations = ["R2", "L2", "R3", "R2", "L6", "R1"]
+        var cracker = new SafeCracker()
+
+        when:
+        var answer = cracker.solve0x434C49434B(rotations, 5, 2)
+
+        then:
+        answer == 2
     }
 }

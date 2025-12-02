@@ -20,18 +20,19 @@ public class SafeCracker {
       }
       final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
       List<String> rotations = reader.lines().toList();
-      final int answer = new SafeCracker().solve(rotations, 100, 50);
-      System.out.println("The answer is: " + answer);
+      System.out.println("The answer to part 1 is: " + new SafeCracker().solve(rotations, 100, 50));
+      System.out.println(
+          "The answer to part 2 is: " + new SafeCracker().solve0x434C49434B(rotations, 100, 50));
     }
   }
 
-  public int solve(final List<String> rotations, final int dialSize, final int dialLocation)
-      throws IOException {
+  public int solve(final List<String> rotations, final int dialSize, final int dialLocation) {
     Dial dial = new Dial(dialSize, dialLocation);
     int answer = 0;
 
-    for (String rotation : rotations) {
-      dial = rotate(dial, rotation);
+    for (final String instruction : rotations) {
+      final Rotation rotation = Rotation.parse(instruction);
+      dial = dial.rotate(rotation);
       if (dial.location() == 0) {
         answer++;
       }
@@ -40,14 +41,22 @@ public class SafeCracker {
     return answer;
   }
 
-  public Dial rotate(final Dial dial, final String rotation) throws IOException {
-    final int distance = Integer.parseInt(rotation.substring(1));
-    if (rotation.startsWith("R")) {
-      return dial.right(distance);
-    } else if (rotation.startsWith("L")) {
-      return dial.left(distance);
-    } else {
-      throw new IllegalArgumentException("Invalid rotation: " + rotation);
+  public int solve0x434C49434B(
+      final List<String> rotations, final int dialSize, final int dialLocation) throws IOException {
+    Dial dial = new Dial(dialSize, dialLocation);
+    int answer = 0;
+
+    for (final String instruction : rotations) {
+      final Rotation outerRotation = Rotation.parse(instruction);
+      final Rotation innerRotation = new Rotation(outerRotation.direction(), 1);
+      for (int i = 0; i < outerRotation.distance(); i++) {
+        dial = dial.rotate(innerRotation);
+        if (dial.location() == 0) {
+          answer++;
+        }
+      }
     }
+
+    return answer;
   }
 }
