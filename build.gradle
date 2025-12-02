@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'application'
+    id 'com.diffplug.spotless' version '6.25.0'
+}
+
+group = 'com.codenzasoft'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    testRuntimeOnly(
+            'org.junit.platform:junit-platform-launcher',
+    )
+
+    testImplementation(
+            'junit:junit:4.13.2',
+            'org.spockframework:spock-core:2.4-M1-groovy-4.0',
+    )
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}
+
+application {
+    mainClass = 'com.codenzasoft.advent2025.day1.SafeCracker'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
