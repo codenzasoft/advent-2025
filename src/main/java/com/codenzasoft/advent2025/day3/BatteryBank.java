@@ -4,13 +4,16 @@ public record BatteryBank(String rating) {
 
   private static final int BASE_10 = 10;
 
-  public int getMaxJoltage() {
-    final String highOrderDigits = rating.substring(0, rating.length() - 1);
-    final int highOrder = getMaxDigit(highOrderDigits);
-    final int highIndex = highOrderDigits.indexOf(Character.forDigit(highOrder, BASE_10));
-    final String lowOrderDigits = rating.substring(highIndex + 1);
-    final int lowOrder = getMaxDigit(lowOrderDigits);
-    return highOrder * BASE_10 + lowOrder;
+  public long getMaxJoltage(int numDigits) {
+    long joltage = 0;
+    int used = 0;
+    for (int remainingDigits = numDigits; remainingDigits > 0; remainingDigits--) {
+      final String digits = rating.substring(used, rating.length() - remainingDigits + 1);
+      final int digit = getMaxDigit(digits);
+      used = used + digits.indexOf(Character.forDigit(digit, BASE_10)) + 1;
+      joltage = joltage * BASE_10 + digit;
+    }
+    return joltage;
   }
 
   private int getMaxDigit(final String digits) {
