@@ -1,5 +1,6 @@
 package com.codenzasoft.advent2025.day1;
 
+import com.codenzasoft.advent2025.PuzzleInput;
 import java.io.*;
 import java.util.List;
 
@@ -16,18 +17,11 @@ import java.util.List;
  */
 public class SafeCracker {
 
-  public static void main(final String[] args) throws IOException {
-    try (final InputStream inputStream =
-        SafeCracker.class.getResourceAsStream("/input-day-1.txt")) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Input file not found");
-      }
-      final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      List<String> rotations = reader.lines().toList();
-      System.out.println("The answer to part 1 is: " + new SafeCracker().solve(rotations, 100, 50));
-      System.out.println(
-          "The answer to part 2 is: " + new SafeCracker().solve0x434C49434B(rotations, 100, 50));
-    }
+  public static void main(final String[] args) {
+    List<String> rotations = PuzzleInput.getInputLines("input-day-1.txt");
+    System.out.println("The answer to part 1 is: " + new SafeCracker().solve(rotations, 100, 50));
+    System.out.println(
+        "The answer to part 2 is: " + new SafeCracker().solve0x434C49434B(rotations, 100, 50));
   }
 
   /**
@@ -65,7 +59,7 @@ public class SafeCracker {
    *     the rotations.
    */
   public int solve0x434C49434B(
-      final List<String> rotations, final int dialSize, final int dialLocation) throws IOException {
+      final List<String> rotations, final int dialSize, final int dialLocation) {
     Dial dial = new Dial(dialSize, dialLocation);
     int answer = 0;
 

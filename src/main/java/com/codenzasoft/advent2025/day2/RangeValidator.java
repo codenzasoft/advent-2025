@@ -1,10 +1,6 @@
 package com.codenzasoft.advent2025.day2;
 
-import com.codenzasoft.advent2025.day1.SafeCracker;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.codenzasoft.advent2025.PuzzleInput;
 import java.util.List;
 
 /**
@@ -13,27 +9,20 @@ import java.util.List;
  */
 public class RangeValidator {
 
-  public static void main(final String[] args) throws IOException {
-    try (final InputStream inputStream =
-        SafeCracker.class.getResourceAsStream("/input-day-2.txt")) {
-      if (inputStream == null) {
-        throw new IllegalArgumentException("Input file not found");
-      }
-      final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      List<String> lines = reader.lines().toList();
-      if (lines.size() > 1) {
-        throw new IllegalArgumentException("Expecting single input line");
-      }
-      final String line = lines.get(0);
-      final List<String> textRanges = List.of(line.split(","));
-      final List<Range> ranges = textRanges.stream().map(Range::parse).toList();
-      System.out.println(
-          "The sum of invalid mirror product IDs is: "
-              + new RangeValidator().computeMirrorTotal(ranges));
-      System.out.println(
-          "The sum of invalid subsequence product IDs is: "
-              + new RangeValidator().computeRepeatedSequenceTotal(ranges));
+  public static void main(final String[] args) {
+    List<String> lines = PuzzleInput.getInputLines("input-day-2.txt");
+    if (lines.size() > 1) {
+      throw new IllegalArgumentException("Expecting single input line");
     }
+    final String line = lines.get(0);
+    final List<String> textRanges = List.of(line.split(","));
+    final List<Range> ranges = textRanges.stream().map(Range::parse).toList();
+    System.out.println(
+        "The sum of invalid mirror product IDs is: "
+            + new RangeValidator().computeMirrorTotal(ranges));
+    System.out.println(
+        "The sum of invalid subsequence product IDs is: "
+            + new RangeValidator().computeRepeatedSequenceTotal(ranges));
   }
 
   /**
