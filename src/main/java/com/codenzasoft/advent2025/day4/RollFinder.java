@@ -21,7 +21,7 @@ public class RollFinder {
   }
 
   public int partTwo(final Grid grid) {
-    int found = 0;
+    int found;
     int total = 0;
     Grid nextGrid = grid;
     do {
