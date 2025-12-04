@@ -9,10 +9,10 @@ public class RollFinder {
     List<String> lines = PuzzleInput.getInputLines("input-day-4.txt");
     System.out.println(
         "The number of paper rolls for part one is: "
-            + new RollFinder().partOne(new Grid.GridBuilder().withRows(lines).build()));
+            + new RollFinder().partOne(new Grid.StringGridBuilder().withRows(lines).build()));
     System.out.println(
         "The number of paper rolls for part two is: "
-            + new RollFinder().partTwo(new Grid.GridBuilder().withRows(lines).build()));
+            + new RollFinder().partTwo(new Grid.StringGridBuilder().withRows(lines).build()));
   }
 
   /**
@@ -23,7 +23,7 @@ public class RollFinder {
    * @return The number of paper rolls that can be removed on the first pass.
    */
   public int partOne(final Grid grid) {
-    return grid.getEntriesWithFewerAdjacentValues(GridEntry.PAPER_ROLL, GridEntry.PAPER_ROLL, 4)
+    return grid.getEntriesWithFewerAdjacentValues(GridValue.PAPER_ROLL, GridValue.PAPER_ROLL, 4)
         .size();
   }
 
@@ -41,11 +41,11 @@ public class RollFinder {
     Grid nextGrid = grid;
     do {
       List<GridEntry> removed =
-          nextGrid.getEntriesWithFewerAdjacentValues(GridEntry.PAPER_ROLL, GridEntry.PAPER_ROLL, 4);
+          nextGrid.getEntriesWithFewerAdjacentValues(GridValue.PAPER_ROLL, GridValue.PAPER_ROLL, 4);
       found = removed.size();
       total += found;
-      final Grid.GridBuilder builder = new Grid.GridBuilder().withRows(nextGrid.getRowStrings());
-      removed.forEach(entry -> builder.removeEntry(entry.position()));
+      final Grid.EntryGridBuilder builder = new Grid.EntryGridBuilder().fromGrid(nextGrid);
+      removed.forEach(entry -> builder.replace(entry.position(), GridValue.REMOVED_ROLL));
       nextGrid = builder.build();
     } while (found > 0);
     return total;

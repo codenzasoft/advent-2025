@@ -8,9 +8,4 @@ package com.codenzasoft.advent2025.day4;
  * @param value One of PAPER_ROLL, EMPTY, or REMOVED
  * @param position The {@link Position} of this {@link GridEntry}
  */
-public record GridEntry(char value, Position position) {
-
-  public static final char PAPER_ROLL = '@';
-  public static final char EMPTY = '.';
-  public static final char REMOVED = 'x';
-}
+public record GridEntry(GridValue value, Position position) {}
