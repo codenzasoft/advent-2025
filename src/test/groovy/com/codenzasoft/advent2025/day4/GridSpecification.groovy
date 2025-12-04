@@ -21,10 +21,33 @@ class GridSpecification extends Specification {
         var grid = new Grid.GridBuilder().withRows(rows).build()
 
         when:
-        var count = grid.partOne()
+        var count = new RollFinder().partOne(grid)
 
         then:
         count == 13
+    }
+
+    def "test repeatedly removing entries with fewer than 4 adjacent filled (paper roll) entries"() {
+        setup:
+        var rows = [
+                "..@@.@@@@.",
+                "@@@.@.@.@@",
+                "@@@@@.@.@@",
+                "@.@@@@..@.",
+                "@@.@@@@.@@",
+                ".@@@@@@@.@",
+                ".@.@.@.@@@",
+                "@.@@@.@@@@",
+                ".@@@@@@@@.",
+                "@.@.@@@.@.",
+        ]
+        var grid = new Grid.GridBuilder().withRows(rows).build()
+
+        when:
+        var count = new RollFinder().partTwo(grid)
+
+        then:
+        count == 43
     }
 
     def "test finding entries"() {
@@ -76,5 +99,27 @@ class GridSpecification extends Specification {
         grid.getMatchingAdjacentPositions(new Position(0,0), GridEntry.PAPER_ROLL ).size() == 2
         grid.getMatchingAdjacentPositions(new Position(0,0), GridEntry.EMPTY ).size() == 1
         grid.getMatchingAdjacentPositions(new Position(4,4), GridEntry.PAPER_ROLL ).size() == 8
+    }
+
+    def "test finding entries"() {
+        setup:
+        var rows = [
+                "..@@.@@@@.",
+                "@@@.@.@.@@",
+                "@@@@@.@.@@",
+                "@.@@@@..@.",
+                "@@.@@@@.@@",
+                ".@@@@@@@.@",
+                ".@.@.@.@@@",
+                "@.@@@.@@@@",
+                ".@@@@@@@@.",
+                "@.@.@@@.@.",
+        ]
+
+        when:
+        var grid = new Grid.GridBuilder().withRows(rows).build()
+
+        then:
+        grid.getRowStrings() == rows
     }
 }
