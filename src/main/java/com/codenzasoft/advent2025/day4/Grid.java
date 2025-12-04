@@ -8,25 +8,57 @@ import java.util.Optional;
 public record Grid(List<List<GridEntry>> rows) {
 
   /**
-   * Builds a grid from a set of string representing grid entries. An entry can be empty (<code>.
-   * </code>) or contain a roll of paper (<code>@</code>).
+   * Builds a {@link Grid} from {@link String}s, where each string represents a row of grid entries.
+   * An individual entry can be empty (<code>.</code>) or contain a roll of paper (<code>@</code>).
+   * A string contains N characters, each identifying the contents of the column at the
+   * corresponding offset.
    */
   public static class GridBuilder {
     private final List<String> rows = new ArrayList<>();
 
+    /**
+     * Appends a row to the {@link Grid} being built.
+     *
+     * @param row A {@link String} where each character identifies the content of each column.
+     * @return This {@link GridBuilder} for chaining.
+     */
     public GridBuilder addRow(final String row) {
       rows.add(row);
+      if (rows.size() > 1) {
+        if (rows.get(0).length() != row.length()) {
+          throw new IllegalArgumentException("All rows must have the same number of columns");
+        }
+      }
       return this;
     }
 
+    /**
+     * Clears and sets the rows for the {@link Grid} being built.
+     *
+     * @param rows A new collection of rows for a {@link Grid}, where each character in a row
+     *     identifies the content of each column.
+     * @return This {@link GridBuilder} for chaining.
+     */
     public GridBuilder withRows(final List<String> rows) {
       this.rows.clear();
       rows.forEach(this::addRow);
       return this;
     }
 
+    /**
+     * Marks the entry at the specified {@link Position} as removed.
+     *
+     * @param position A {@link Position} to mark removed.
+     * @return This {@link GridBuilder} for chaining.
+     */
     public GridBuilder removeEntry(final Position position) {
+      if (position.row() >= rows.size()) {
+        throw new IllegalArgumentException("Row index out of bounds");
+      }
       String row = rows.get(position.row());
+      if (position.column() >= row.length()) {
+        throw new IllegalArgumentException("Column index out of bounds");
+      }
       StringBuilder next = new StringBuilder();
       for (int col = 0; col < row.length(); col++) {
         if (col == position.column()) {
@@ -39,6 +71,12 @@ public record Grid(List<List<GridEntry>> rows) {
       return this;
     }
 
+    /**
+     * Builds and returns a {@link Grid} based on the rows that have been provided to this {@link
+     * GridBuilder}.
+     *
+     * @return A {@link Grid}
+     */
     public Grid build() {
       final List<List<GridEntry>> theRows = new ArrayList<>();
       for (int row = 0; row < rows.size(); row++) {
@@ -55,13 +93,15 @@ public record Grid(List<List<GridEntry>> rows) {
   }
 
   /**
-   * Returns the 8 positions adjacent to the provided position.
+   * Returns the 8 positions adjacent to the provided position. Note that the {@link Position}s are
+   * not verified to exist in this {@link Grid}.
    *
-   * @param row zero based row index
-   * @param col zero based column index
-   * @return A list of adjacent positions
+   * @param position A {@link Position} from which to generate adjacent {@link Position}s.
+   * @return A list of adjacent {@link Position}s.
    */
-  public List<Position> getAdjacentPositions(final int row, final int col) {
+  public List<Position> getAdjacentPositions(final Position position) {
+    final int row = position.row();
+    final int col = position.column();
     return List.of(
         new Position(row - 1, col - 1),
         new Position(row - 1, col),
@@ -82,7 +122,7 @@ public record Grid(List<List<GridEntry>> rows) {
    *     character.
    */
   public List<GridEntry> getMatchingAdjacentPositions(final Position position, final char c) {
-    return getAdjacentPositions(position.row(), position.column()).stream()
+    return getAdjacentPositions(position).stream()
         .map(this::getEntry)
         .filter(Optional::isPresent)
         .map(Optional::get)
@@ -91,8 +131,8 @@ public record Grid(List<List<GridEntry>> rows) {
   }
 
   /**
-   * Returns the {@link GridEntry} at the specified position, or <code>empty</code> if none (not
-   * within this grid).
+   * Returns the {@link GridEntry} at the specified {@link Position}, or <code>empty</code> if none
+   * (not within this {@link Grid}).
    *
    * @param position A {@link Position}
    * @return the {@link GridEntry} at the specified position, or <code>empty</code> if not contained
