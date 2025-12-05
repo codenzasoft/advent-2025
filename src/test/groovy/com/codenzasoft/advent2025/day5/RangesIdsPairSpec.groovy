@@ -74,7 +74,24 @@ class RangesIdsPairSpec extends Specification {
         var compressed = pair.compress()
 
         then:
-        compressed.idsInRange() == [5L, 11L, 17L]
+        compressed.findIdsInRange() == [5L, 11L, 17L]
+    }
+
+    def "test streaming all ids in range"() {
+        setup:
+        var lines = [
+                "3-5",
+                "10-14",
+                "16-20",
+                "12-18",
+        ]
+
+        when:
+        var pair = RangesIdsPair.parse(lines)
+        var compressed = pair.compress()
+
+        then:
+        compressed.idSize() == 14
     }
 
 }

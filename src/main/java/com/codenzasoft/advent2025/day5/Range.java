@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2025.day5;
 
 import java.util.Optional;
+import java.util.stream.LongStream;
 
 public record Range(long start, long end) {
 
@@ -27,5 +28,9 @@ public record Range(long start, long end) {
           new Range(Math.min(this.start(), other.start()), Math.max(this.end(), other.end())));
     }
     return Optional.empty();
+  }
+
+  public long size() {
+    return end() - start() + 1;
   }
 }

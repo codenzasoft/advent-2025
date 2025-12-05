@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2025.day5;
 
 import java.util.*;
+import java.util.stream.LongStream;
 
 public record RangesIdsPair(List<Range> ranges, List<Long> ids) {
 
@@ -53,7 +54,7 @@ public record RangesIdsPair(List<Range> ranges, List<Long> ids) {
     return new RangesIdsPair(compressedRange, idsCopy);
   }
 
-  public List<Long> idsInRange() {
+  public List<Long> findIdsInRange() {
     final List<Long> selected = new ArrayList<>();
     int rangeIndex = 0;
     int idIndex = 0;
@@ -72,5 +73,9 @@ public record RangesIdsPair(List<Range> ranges, List<Long> ids) {
       }
     }
     return selected;
+  }
+
+  public long idSize() {
+    return ranges.stream().mapToLong(Range::size).sum();
   }
 }
