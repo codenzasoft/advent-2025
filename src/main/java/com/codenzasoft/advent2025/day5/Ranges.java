@@ -1,30 +1,15 @@
 package com.codenzasoft.advent2025.day5;
 
 import java.util.*;
-import java.util.stream.LongStream;
 
-public record RangesIdsPair(List<Range> ranges, List<Long> ids) {
-
-  public static RangesIdsPair parse(List<String> input) {
-    List<Range> ranges = new ArrayList<>();
-    List<Long> ids = new ArrayList<>();
-    input.forEach(
-        line -> {
-          if (line.contains("-")) {
-            ranges.add(Range.parse(line));
-          } else if (!line.trim().isEmpty()) {
-            ids.add(Long.parseLong(line));
-          }
-        });
-    return new RangesIdsPair(ranges, ids);
-  }
+public record Ranges(List<Range> ranges) {
 
   /**
-   * Sorts and merges overlapping ranges and ids.
+   * Sorts and merges overlapping ranges.
    *
-   * @return A compatible {@link RangesIdsPair}
+   * @return A compatible {@link Ranges}
    */
-  public RangesIdsPair compress() {
+  public Ranges compress() {
     List<Range> sortedRanges = new ArrayList<>(ranges);
     sortedRanges.sort(
         new Comparator<Range>() {
@@ -48,24 +33,30 @@ public record RangesIdsPair(List<Range> ranges, List<Long> ids) {
     if (!compressedRange.contains(currentRange)) {
       compressedRange.add(currentRange);
     }
-
-    List<Long> idsCopy = new ArrayList<>(ids);
-    Collections.sort(idsCopy);
-    return new RangesIdsPair(compressedRange, idsCopy);
+    return new Ranges(compressedRange);
   }
 
-  public List<Long> findIdsInRange() {
+  /**
+   * Returns any Ids in the provided list that are contained in this {@link Range}.
+   *
+   * @param ids A list of ids
+   * @return A list of the provided Ids that are contained in this {@link Range}.
+   */
+  public List<Long> getContainedIds(final List<Long> ids) {
+    List<Long> sortedIds = new ArrayList<>(ids);
+    Collections.sort(sortedIds);
+
     final List<Long> selected = new ArrayList<>();
     int rangeIndex = 0;
     int idIndex = 0;
-    while (idIndex < ids.size() && rangeIndex < ranges.size()) {
-      final Long id = ids.get(idIndex);
+    while (idIndex < sortedIds.size() && rangeIndex < ranges.size()) {
+      final Long id = sortedIds.get(idIndex);
       final Range range = ranges.get(rangeIndex);
       if (range.contains(id)) {
         selected.add(id);
         idIndex++;
       } else {
-        if (range.isGreaterThan(id)) {
+        if (range.isGreaterThanValue(id)) {
           idIndex++;
         } else {
           rangeIndex++;
@@ -75,6 +66,11 @@ public record RangesIdsPair(List<Range> ranges, List<Long> ids) {
     return selected;
   }
 
+  /**
+   * Returns the number of Ids contained in this {@link Range}.
+   *
+   * @return The number of Ids contained in this {@link Range}.
+   */
   public long idSize() {
     return ranges.stream().mapToLong(Range::size).sum();
   }

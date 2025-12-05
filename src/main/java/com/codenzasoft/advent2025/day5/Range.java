@@ -1,7 +1,6 @@
 package com.codenzasoft.advent2025.day5;
 
 import java.util.Optional;
-import java.util.stream.LongStream;
 
 public record Range(long start, long end) {
 
@@ -14,7 +13,7 @@ public record Range(long start, long end) {
     return value >= start && value <= end;
   }
 
-  public boolean isGreaterThan(final long value) {
+  public boolean isGreaterThanValue(final long value) {
     return value < start;
   }
 

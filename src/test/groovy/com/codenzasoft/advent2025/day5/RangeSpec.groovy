@@ -36,9 +36,9 @@ class RangeSpec extends Specification {
         var r1 = new Range(16,20)
 
         then:
-        r1.isGreaterThan(15)
-        !r1.isGreaterThan(16)
-        !r1.isGreaterThan(21)
+        r1.isGreaterThanValue(15)
+        !r1.isGreaterThanValue(16)
+        !r1.isGreaterThanValue(21)
     }
 
 }

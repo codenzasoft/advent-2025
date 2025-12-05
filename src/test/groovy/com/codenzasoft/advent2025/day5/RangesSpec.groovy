@@ -2,31 +2,7 @@ package com.codenzasoft.advent2025.day5
 
 import spock.lang.Specification
 
-class RangesIdsPairSpec extends Specification {
-
-    def "test parsing"() {
-        setup:
-        var lines = [
-                "3-5",
-                "10-14",
-                "16-20",
-                "12-18",
-                "",
-                "1",
-                "5",
-                "8",
-                "11",
-                "17",
-                "32"
-        ]
-
-        when:
-        var pair = RangesIdsPair.parse(lines)
-
-        then:
-        pair.ranges().size() == 4
-        pair.ids().size() == 6
-    }
+class RangesSpec extends Specification {
 
     def "test compression"() {
         setup:
@@ -45,12 +21,10 @@ class RangesIdsPairSpec extends Specification {
         ]
 
         when:
-        var pair = RangesIdsPair.parse(lines)
-        var compressed = pair.compress()
+        var ranges = IdSearch.parse(lines).ranges().compress()
 
         then:
-        compressed.ranges() == [new Range(3,5), new Range(10,20)]
-        compressed.ids() == [1L,5L,8L,11L,17L,32L]
+        ranges.ranges() == [new Range(3,5), new Range(10,20)]
     }
 
     def "test range selection"() {
@@ -70,11 +44,11 @@ class RangesIdsPairSpec extends Specification {
         ]
 
         when:
-        var pair = RangesIdsPair.parse(lines)
-        var compressed = pair.compress()
+        var pair = IdSearch.parse(lines)
+        var compressed = pair.ranges().compress()
 
         then:
-        compressed.findIdsInRange() == [5L, 11L, 17L]
+        compressed.getContainedIds(pair.ids()) == [5L, 11L, 17L]
     }
 
     def "test streaming all ids in range"() {
@@ -87,8 +61,8 @@ class RangesIdsPairSpec extends Specification {
         ]
 
         when:
-        var pair = RangesIdsPair.parse(lines)
-        var compressed = pair.compress()
+        var pair = IdSearch.parse(lines)
+        var compressed = pair.ranges().compress()
 
         then:
         compressed.idSize() == 14
