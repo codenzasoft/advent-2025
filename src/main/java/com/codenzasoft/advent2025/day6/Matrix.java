@@ -1,5 +1,6 @@
 package com.codenzasoft.advent2025.day6;
 
+import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -20,27 +21,7 @@ public record Matrix(List<List<Long>> rows) {
     }
 
     public MatrixRowBuilder addStringRow(final String row) {
-      addLongRow(ProblemSolver.getArguments(row));
-      return this;
-    }
-
-    public Matrix build() {
-      return new Matrix(rows);
-    }
-  }
-
-  public static class MatrixColumnBuilder {
-    final List<List<Long>> rows = new ArrayList<>();
-
-    public MatrixColumnBuilder addLongColumn(final List<Long> column) {
-      if (rows.isEmpty()) {
-        for (int i = 0; i < column.size(); i++) {
-          rows.add(new ArrayList<>());
-        }
-      }
-      for (int i = 0; i < column.size(); i++) {
-        rows.get(i).add(column.get(i));
-      }
+      addLongRow(PuzzleHelper.parseAndMap(row, Long::parseLong));
       return this;
     }
 

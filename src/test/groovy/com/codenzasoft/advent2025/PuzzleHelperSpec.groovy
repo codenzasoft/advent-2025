@@ -21,4 +21,17 @@ class PuzzleHelperSpec extends Specification {
         PuzzleHelper.isPeriodicSequence('1212121212')
         PuzzleHelper.isPeriodicSequence('1111111')
     }
+
+    def "test parse and map"() {
+        setup:
+        var input = " 123 456  789 "
+        var mapper = Long::parseLong
+
+        when:
+        var result = PuzzleHelper.parseAndMap(input, mapper)
+
+        then:
+        result == [123L, 456L, 789L]
+    }
+
 }

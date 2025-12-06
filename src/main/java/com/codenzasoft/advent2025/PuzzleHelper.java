@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /** Helper to read an input file of text, returning a list of strings - one for each line. */
 public class PuzzleHelper {
@@ -97,5 +99,18 @@ public class PuzzleHelper {
       }
     }
     return 0;
+  }
+
+  /**
+   * Returns the result of mapping each whitespace separated token in the provided line of text.
+   *
+   * @param line A line of whitespace separated tokens
+   * @param mapper A function to map each token
+   * @return A list of mapped tokens
+   * @param <T> the result type of the mapper
+   */
+  public static <T> List<T> parseAndMap(final String line, final Function<String, T> mapper) {
+    final String[] tokens = line.trim().split("\\s+");
+    return Arrays.stream(tokens).map(String::trim).filter(s -> !s.isEmpty()).map(mapper).toList();
   }
 }

@@ -2,7 +2,6 @@ package com.codenzasoft.advent2025.day6;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ProblemSolver {
@@ -19,18 +18,8 @@ public class ProblemSolver {
     System.out.println("The answer to part 2 is: " + part2(lines));
   }
 
-  public static List<Long> getArguments(final String line) {
-    final String[] tokens = line.trim().split("\\s+");
-    return Arrays.stream(tokens)
-        .map(String::trim)
-        .filter(s -> !s.isEmpty())
-        .map(Long::parseLong)
-        .toList();
-  }
-
   public static List<Operation> getOperands(final String line) {
-    final String[] tokens = line.trim().split("\\s+");
-    return Arrays.stream(tokens).filter(s -> !s.isEmpty()).map(Operation::parse).toList();
+    return PuzzleHelper.parseAndMap(line, Operation::parse);
   }
 
   public static long part1(final Matrix matrix, final List<Operation> operations) {
