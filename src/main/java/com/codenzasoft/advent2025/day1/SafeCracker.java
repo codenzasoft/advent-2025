@@ -1,7 +1,6 @@
 package com.codenzasoft.advent2025.day1;
 
-import com.codenzasoft.advent2025.PuzzleInput;
-import java.io.*;
+import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.List;
 
 /**
@@ -18,7 +17,7 @@ import java.util.List;
 public class SafeCracker {
 
   public static void main(final String[] args) {
-    List<String> rotations = PuzzleInput.getInputLines("input-day-1.txt");
+    List<String> rotations = PuzzleHelper.getInputLines("input-day-1.txt");
     System.out.println("The answer to part 1 is: " + new SafeCracker().solve(rotations, 100, 50));
     System.out.println(
         "The answer to part 2 is: " + new SafeCracker().solve0x434C49434B(rotations, 100, 50));

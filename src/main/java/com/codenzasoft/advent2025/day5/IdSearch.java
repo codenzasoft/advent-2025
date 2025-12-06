@@ -1,12 +1,12 @@
 package com.codenzasoft.advent2025.day5;
 
-import com.codenzasoft.advent2025.PuzzleInput;
+import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.ArrayList;
 import java.util.List;
 
 public class IdSearch {
   public static void main(String[] args) {
-    List<String> lines = PuzzleInput.getInputLines("input-day-5.txt");
+    List<String> lines = PuzzleHelper.getInputLines("input-day-5.txt");
     final InputPair pair = parse(lines);
     final Ranges ranges = pair.ranges().compress();
     final List<Long> ids = pair.ids();

@@ -1,11 +1,12 @@
 package com.codenzasoft.advent2025.day2;
 
+import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.List;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
- * A range of {@link ProductId}s.
+ * A range of product IDs (longs).
  *
  * @param start The starting value of the range.
  * @param end The ending value of the range (inclusive).
@@ -13,32 +14,36 @@ import java.util.stream.Stream;
 public record Range(long start, long end) {
 
   /**
-   * Returns a list of invalid mirror {@link ProductId}s included in this {@link Range}.
+   * Returns a list of product ids that are half-and-half. That is, where the first and second half
+   * of the ID are the same number. For example, "123123" or "1111".
    *
-   * @return A list of invalid mirror {@link ProductId}s included in this {@link Range}.
+   * @return A list of product ids that are half-and-half.
    */
-  public List<ProductId> findMirrorIds() {
-    return stream().filter(ProductId::isMirrorSequence).toList();
+  public List<Long> findHalfAndHalfIds() {
+    return stream().filter(l -> PuzzleHelper.isHalfAndHalf(Long.toString(l))).boxed().toList();
   }
 
   /**
-   * Returns a list of invalid repeated sub-sequence {@link ProductId}s included in this {@link
+   * Returns a list of product ids composed of a repeated sub-sequence included in this {@link
    * Range}.
    *
-   * @return A list of invalid repeated sub-sequence {@link ProductId}s included in this {@link
+   * @return A list of product ids composed of a repeated sub-sequence included in this {@link
    *     Range}.
    */
-  public List<ProductId> findRepeatedSequenceIds() {
-    return stream().filter(ProductId::isRepeatedSequence).toList();
+  public List<Long> findRepeatedSequenceIds() {
+    return stream()
+        .filter(l -> PuzzleHelper.getPeriodicSubstringCount(Long.toString(l)) > 1)
+        .boxed()
+        .toList();
   }
 
   /**
-   * Returns a {@link Stream} of {@link ProductId}s in this {@link Range}.
+   * Returns a {@link Stream} of product ids in this {@link Range}.
    *
-   * @return A {@link Stream} of {@link ProductId}s in this {@link Range}.
+   * @return A {@link Stream} of product ids in this {@link Range}.
    */
-  public Stream<ProductId> stream() {
-    return LongStream.range(start, end + 1L).mapToObj(ProductId::new);
+  public LongStream stream() {
+    return LongStream.range(start, end + 1L);
   }
 
   /**

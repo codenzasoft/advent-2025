@@ -18,11 +18,11 @@ class RangeSpec extends Specification {
         var range = Range.parse("1188511880-1188511890")
 
         when:
-        var invalid = range.findMirrorIds()
+        var invalid = range.findHalfAndHalfIds()
 
         then:
         invalid.size() == 1
-        invalid.contains(new ProductId(1188511885L))
+        invalid.contains(1188511885L)
     }
 
     def "test multiple invalid IDs can be found in a range"() {
@@ -30,11 +30,11 @@ class RangeSpec extends Specification {
         var range = Range.parse("11-22")
 
         when:
-        var invalid = range.findMirrorIds()
+        var invalid = range.findHalfAndHalfIds()
 
         then:
         invalid.size() == 2
-        invalid.contains(new ProductId(11L))
-        invalid.contains(new ProductId(22L))
+        invalid.contains(11L)
+        invalid.contains(22L)
     }
 }
