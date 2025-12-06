@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2025.day5;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
+import com.codenzasoft.advent2025.day2.Range;
 import java.util.ArrayList;
 import java.util.List;
 

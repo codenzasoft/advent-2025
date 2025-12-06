@@ -1,5 +1,6 @@
 package com.codenzasoft.advent2025.day5
 
+import com.codenzasoft.advent2025.day2.Range
 import spock.lang.Specification
 
 class RangesSpec extends Specification {
