@@ -6,10 +6,10 @@ import java.util.stream.IntStream;
 
 public record Matrix(List<List<Long>> rows) {
 
-  public static class MatrixBuilder {
+  public static class MatrixRowBuilder {
     List<List<Long>> rows = new ArrayList<>();
 
-    public MatrixBuilder addLongRow(final List<Long> row) {
+    public MatrixRowBuilder addLongRow(final List<Long> row) {
       if (!rows.isEmpty()) {
         if (rows.get(0).size() != row.size()) {
           throw new IllegalArgumentException("Rows must have same length");
@@ -19,8 +19,28 @@ public record Matrix(List<List<Long>> rows) {
       return this;
     }
 
-    public MatrixBuilder addStringRow(final String row) {
+    public MatrixRowBuilder addStringRow(final String row) {
       addLongRow(ProblemSolver.getArguments(row));
+      return this;
+    }
+
+    public Matrix build() {
+      return new Matrix(rows);
+    }
+  }
+
+  public static class MatrixColumnBuilder {
+    final List<List<Long>> rows = new ArrayList<>();
+
+    public MatrixColumnBuilder addLongColumn(final List<Long> column) {
+      if (rows.isEmpty()) {
+        for (int i = 0; i < column.size(); i++) {
+          rows.add(new ArrayList<>());
+        }
+      }
+      for (int i = 0; i < column.size(); i++) {
+        rows.get(i).add(column.get(i));
+      }
       return this;
     }
 

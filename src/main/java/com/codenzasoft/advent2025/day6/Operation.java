@@ -1,5 +1,7 @@
 package com.codenzasoft.advent2025.day6;
 
+import java.util.List;
+
 public enum Operation {
   ADDITION,
   MULTIPLICATION;
@@ -10,6 +12,10 @@ public enum Operation {
       case MULTIPLICATION -> a * b;
       default -> throw new IllegalStateException();
     };
+  }
+
+  public long apply(final List<Long> numbers) {
+    return numbers.stream().reduce(this::apply).orElse(0L);
   }
 
   public static Operation parse(String input) {

@@ -11,7 +11,7 @@ class MatrixSpec extends Specification {
                 "45 64  387 23",
                 "6 98  215 314",
         ]
-        var builder = new Matrix.MatrixBuilder()
+        var builder = new Matrix.MatrixRowBuilder()
 
         when:
         lines.forEach {l -> builder.addStringRow(l)}
@@ -29,7 +29,7 @@ class MatrixSpec extends Specification {
                 "45 64  387 23",
                 "6 98  215 314",
         ]
-        var builder = new Matrix.MatrixBuilder()
+        var builder = new Matrix.MatrixRowBuilder()
         lines.forEach {l -> builder.addStringRow(l)}
         var matrix = builder.build()
 
