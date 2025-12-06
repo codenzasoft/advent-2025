@@ -18,7 +18,7 @@ class RangeValidatorSpec extends Specification {
         ]
 
         when:
-        var total = new RangeValidator().computeMirrorTotal(ranges)
+        var total = new RangeValidator().computeHalfAndHalfTotal(ranges)
 
         then:
         total == 1227775554L

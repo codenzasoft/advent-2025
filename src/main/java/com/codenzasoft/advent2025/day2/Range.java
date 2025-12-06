@@ -26,23 +26,21 @@ public record Range(long start, long end) {
   }
 
   /**
-   * Returns a list of product ids that are half-and-half. That is, where the first and second half
-   * of the ID are the same number. For example, "123123" or "1111".
+   * Returns a list of numbers that are half-and-half. That is, where the first and second half of
+   * the number are the same. For example, "123123" or "1111".
    *
-   * @return A list of product ids that are half-and-half.
+   * @return A list of numbers that are half-and-half.
    */
-  public List<Long> findHalfAndHalfIds() {
+  public List<Long> findHalfAndHalfs() {
     return stream().filter(l -> PuzzleHelper.isHalfAndHalf(Long.toString(l))).boxed().toList();
   }
 
   /**
-   * Returns a list of product ids composed of a repeated sub-sequence included in this {@link
-   * Range}.
+   * Returns a list of numbers composed of a repeated sub-sequence included in this {@link Range}.
    *
-   * @return A list of product ids composed of a repeated sub-sequence included in this {@link
-   *     Range}.
+   * @return A list of numbers composed of a repeated sub-sequence included in this {@link Range}.
    */
-  public List<Long> findRepeatedSequenceIds() {
+  public List<Long> findRepeatedSequenceNumbers() {
     return stream()
         .filter(l -> PuzzleHelper.getPeriodicSubstringCount(Long.toString(l)) > 1)
         .boxed()

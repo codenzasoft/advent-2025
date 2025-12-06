@@ -19,7 +19,7 @@ public class RangeValidator {
     final List<Range> ranges = textRanges.stream().map(Range::parse).toList();
     System.out.println(
         "The sum of invalid mirror product IDs is: "
-            + new RangeValidator().computeMirrorTotal(ranges));
+            + new RangeValidator().computeHalfAndHalfTotal(ranges));
     System.out.println(
         "The sum of invalid subsequence product IDs is: "
             + new RangeValidator().computeRepeatedSequenceTotal(ranges));
@@ -31,10 +31,10 @@ public class RangeValidator {
    * @param ranges A list of {@link Range}s
    * @return The sum of all "half-and-half" product ids in the given {@link Range}s.
    */
-  public long computeMirrorTotal(final List<Range> ranges) {
+  public long computeHalfAndHalfTotal(final List<Range> ranges) {
     long total = 0;
     for (final Range range : ranges) {
-      total += range.findHalfAndHalfIds().stream().mapToLong(Long::longValue).sum();
+      total += range.findHalfAndHalfs().stream().mapToLong(Long::longValue).sum();
     }
     return total;
   }
@@ -48,7 +48,7 @@ public class RangeValidator {
   public long computeRepeatedSequenceTotal(final List<Range> ranges) {
     long total = 0;
     for (final Range range : ranges) {
-      total += range.findRepeatedSequenceIds().stream().mapToLong(Long::longValue).sum();
+      total += range.findRepeatedSequenceNumbers().stream().mapToLong(Long::longValue).sum();
     }
     return total;
   }
