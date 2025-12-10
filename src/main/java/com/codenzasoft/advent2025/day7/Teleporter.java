@@ -41,6 +41,7 @@ public class Teleporter {
     return splits;
   }
 
+  // Runs out of memory
   public static int buildTree(final Manifold manifold) {
     List<List<Edge>> rows = new ArrayList<>();
     for (int i = 0; i < manifold.getRowCount(); i++) {
@@ -89,6 +90,7 @@ public class Teleporter {
     return leafCount;
   }
 
+  // runs out of memory
   public static int countExits(final Manifold manifold) {
     List<Integer> prevEdges = new LinkedList<>();
     List<Integer> nextEdges = new LinkedList<>();

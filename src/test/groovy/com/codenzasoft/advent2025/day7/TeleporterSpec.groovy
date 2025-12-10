@@ -59,10 +59,12 @@ class TeleporterSpec extends Specification {
 
         when:
         var exitCount = Teleporter.countExits(manifold)
+        var leafCount = Teleporter.buildTree(manifold)
         var compressedCount = Teleporter.compressExits(manifold)
 
         then:
         exitCount == 40
+        leafCount == 40
         compressedCount == 40
     }
 
