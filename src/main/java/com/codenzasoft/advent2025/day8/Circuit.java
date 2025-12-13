@@ -1,9 +1,7 @@
 package com.codenzasoft.advent2025.day8;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class Circuit {
 
