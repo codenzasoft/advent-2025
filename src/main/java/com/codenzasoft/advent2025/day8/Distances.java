@@ -10,10 +10,11 @@ public class Distances {
   public static void main(final String[] args) {
     final List<String> lines = PuzzleHelper.getInputLines("input-day-8.txt");
     final List<Point3D> point3DS = lines.stream().map(Point3D::parse).toList();
+    System.out.println("The answer to part 1 is: " + part1(point3DS, 1000));
   }
 
-  public static long part1(final List<Point3D> points) {
-    final List<Set<Point3D>> circuits = findNShortest(points, 10);
+  public static long part1(final List<Point3D> points, final int numConnections) {
+    final List<Set<Point3D>> circuits = findNShortest(points, numConnections);
     System.out.println("Part 1 number of circuits: " + circuits.size());
     final List<Integer> sizes = new ArrayList<>(circuits.stream().map(Set::size).toList());
     sizes.sort(Comparator.reverseOrder());

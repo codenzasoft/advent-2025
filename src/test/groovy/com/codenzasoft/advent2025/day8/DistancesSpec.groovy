@@ -30,7 +30,7 @@ class DistancesSpec extends Specification {
         ]
 
         when:
-        long result = Distances.part1(points)
+        long result = Distances.part1(points, 10)
 
         then:
         result == 40
