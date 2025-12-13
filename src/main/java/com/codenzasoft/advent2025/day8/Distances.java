@@ -14,7 +14,21 @@ public class Distances {
   }
 
   public static long part1(final List<Point3D> points, final int numConnections) {
-    final List<Set<Point3D>> circuits = findNShortest(points, numConnections);
+    final List<Connection> connections = buildConnections(points);
+    System.out.println("Number of possible connections: " + connections.size());
+    connections.sort(Comparator.comparingDouble(Connection::distance));
+
+    final List<Set<Point3D>> circuits = new ArrayList<>();
+    int i = 0;
+    int connected = 0;
+    while (connected < numConnections) {
+      final Connection connection = connections.get(i);
+      if (addConnectionToCircuits(connection, circuits)) {
+        connected++;
+      }
+      i++;
+    }
+
     System.out.println("Part 1 number of circuits: " + circuits.size());
     final List<Integer> sizes = new ArrayList<>(circuits.stream().map(Set::size).toList());
     sizes.sort(Comparator.reverseOrder());
@@ -108,5 +122,17 @@ public class Distances {
       }
     }
     return shortest;
+  }
+
+  public static List<Connection> buildConnections(final List<Point3D> points) {
+    final List<Connection> connections = new ArrayList<>();
+    for (int outerIndex = 0; outerIndex < points.size(); outerIndex++) {
+      final Point3D outerPoint = points.get(outerIndex);
+      for (int innerIndex = outerIndex + 1; innerIndex < points.size(); innerIndex++) {
+        final Point3D innerPoint = points.get(innerIndex);
+        connections.add( new Connection(outerPoint, innerPoint, innerPoint.distance(outerPoint)));
+      }
+    }
+    return connections;
   }
 }
