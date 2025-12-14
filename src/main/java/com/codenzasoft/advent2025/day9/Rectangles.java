@@ -1,7 +1,6 @@
 package com.codenzasoft.advent2025.day9;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
-import java.awt.*;
 import java.util.List;
 
 public class Rectangles {
@@ -13,10 +12,7 @@ public class Rectangles {
   }
 
   public static List<Point> parsePoints(List<String> lines) {
-    return lines.stream()
-        .map(l -> l.split(","))
-        .map(text -> new Point(Integer.parseInt(text[0]), Integer.parseInt(text[1])))
-        .toList();
+    return lines.stream().map(Point::parse).toList();
   }
 
   public static long part1(final List<Point> points) {
@@ -26,9 +22,8 @@ public class Rectangles {
       final Point outerPoint = points.get(outerIndex);
       for (int innerIndex = outerIndex + 1; innerIndex < points.size(); innerIndex++) {
         final Point innerPoint = points.get(innerIndex);
-        final long area =
-            (long) (Math.abs(outerPoint.x - innerPoint.x) + 1)
-                * (long) (Math.abs(outerPoint.y - innerPoint.y) + 1);
+        final Rectangle rectangle = new Rectangle(outerPoint, innerPoint);
+        final long area = rectangle.getArea();
         combinations++;
         if (area > maxArea) {
           maxArea = area;
