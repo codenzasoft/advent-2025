@@ -28,7 +28,7 @@ public record Line(Point p1, Point p2) {
 
   public boolean xRayCrossesY(Point point) {
     return isVertical()
-        && point.x() <= getMinX()
+        && point.x() < getMinX()
         && point.y() >= getMinY()
         && point.y() <= getMaxY();
   }

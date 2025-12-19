@@ -67,5 +67,6 @@ class RectanglesSpec extends Specification {
         points.stream().allMatch {point -> polygon.contains(point)}
         !polygon.contains(new Rectangle(points[0], points[2]))
         !polygon.contains(new Rectangle(points[0], points[6]))
+        !polygon.contains(new Point(2,7))
     }
 }
