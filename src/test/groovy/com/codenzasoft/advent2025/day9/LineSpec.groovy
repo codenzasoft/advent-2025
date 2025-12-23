@@ -21,7 +21,7 @@ class LineSpec extends Specification {
         !line.isOnLine(p5)
     }
 
-    def "test a crosses a line"() {
+    def "test an xray crosses a line"() {
         when:
         var line = new Line(new Point(11,2), new Point(11, 7))
         var p1 = new Point(5, 1)
@@ -45,4 +45,35 @@ class LineSpec extends Specification {
         !line.xRayCrossesY(p7)
         !line.xRayCrossesY(p8)
     }
+
+    def "test line intersection"() {
+        when:
+        var hLine = new Line(new Point(10,10), new Point(20,10))
+        var vLine = new Line(new Point (15, 5), new Point(15,15))
+
+        then:
+        hLine.intersects(vLine)
+    }
+
+    def "test lines do not intersect"() {
+        when:
+        var hLine = new Line(new Point(10,10), new Point(20,10))
+        var vLine = new Line(new Point (5, 5), new Point(5,15))
+
+        then:
+        !hLine.intersects(vLine)
+    }
+
+    def "test orientation"() {
+        when:
+        var hLine = new Line(new Point(10,10), new Point(20,10))
+        var vLine = new Line(new Point (15, 5), new Point(15,15))
+
+        then:
+        hLine.isHorizontal()
+        !hLine.isVertical()
+        vLine.isVertical()
+        !vLine.isHorizontal()
+    }
+
 }

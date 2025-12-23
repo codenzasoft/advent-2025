@@ -32,6 +32,30 @@ public record Rectangle(Point corner1, Point corner2) {
     return Math.max(corner1.y(), corner2.y());
   }
 
+  public Point getTopLeft() {
+    return new Point(getMinX(), getMinY());
+  }
+
+  public Point getTopRight() {
+    return new Point(getMaxX(), getMinY());
+  }
+
+  public Point getBottomRight() {
+    return new Point(getMaxX(), getMaxY());
+  }
+
+  public Point getBottomLeft() {
+    return new Point(getMinX(), getMaxY());
+  }
+
+  public List<Line> getLines() {
+    return List.of(
+        new Line(getTopLeft(), getTopRight()),
+        new Line(getTopRight(), getBottomRight()),
+        new Line(getBottomRight(), getBottomLeft()),
+        new Line(getBottomLeft(), getTopLeft()));
+  }
+
   public List<Point> getVertices() {
     return List.of(
         new Point(getMinX(), getMinY()),

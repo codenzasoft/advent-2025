@@ -14,7 +14,6 @@ public class Toggler {
   }
 
   public static int part1(final List<Machine> machines) {
-    int sum = 0;
     return machines.stream().mapToInt(Toggler::solveMachine).sum();
   }
 
