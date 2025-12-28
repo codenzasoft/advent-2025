@@ -18,41 +18,51 @@ public class Distances {
     System.out.println("Number of possible connections: " + connections.size());
     connections.sort(Comparator.comparingDouble(Connection::distance));
 
-    final List<Set<Point3D>> circuits = new ArrayList<>();
-    int i = 0;
-    int connected = 0;
-    while (connected < numConnections) {
+    final List<Circuit> circuits = new ArrayList<>(points.stream().map(Circuit::of).toList());
+    for (int i = 0; i < numConnections; i++) {
       final Connection connection = connections.get(i);
-      if (addConnectionToCircuits(connection, circuits)) {
-        connected++;
-      }
-      i++;
+      addConnectionToCircuits(connection, circuits);
     }
 
     System.out.println("Part 1 number of circuits: " + circuits.size());
-    final List<Integer> sizes = new ArrayList<>(circuits.stream().map(Set::size).toList());
+    final List<Integer> sizes =
+        new ArrayList<>(circuits.stream().map(Circuit::getPointsSize).toList());
     sizes.sort(Comparator.reverseOrder());
     return sizes.stream().limit(3).reduce(1, (a, b) -> a * b);
   }
 
-  public static boolean addConnectionToCircuits(
-      final Connection connection, final List<Set<Point3D>> circuits) {
-    final Optional<Set<Point3D>> optional =
-        circuits.stream().filter(c -> connection.isPartiallyContainedIn(c)).findAny();
-    if (optional.isPresent()) {
-      final Set<Point3D> circuit = optional.get();
-      if (connection.isCompletelyContainedIn(circuit)) {
-        return false;
-      }
-      circuit.add(connection.p1());
-      circuit.add(connection.p2());
-      return true;
+  /**
+   * Adds the provided {@link Connection} to a {@link Circuit} if the ends are not already
+   * connected.
+   *
+   * @param connection A {@link Connection} to add to an existing {@link Circuit}
+   * @param circuits The list of existing {@link Circuit}s.
+   */
+  public static void addConnectionToCircuits(
+      final Connection connection, final List<Circuit> circuits) {
+
+    if (circuits.stream().anyMatch(circuit -> circuit.contains(connection))) {
+      // already connected
+      return;
+    }
+
+    final List<Circuit> merge =
+        circuits.stream().filter(circuit -> circuit.canAdd(connection)).toList();
+    if (merge.isEmpty()) {
+      // need to create a new circuit?
+      throw new IllegalStateException("Oops");
+    } else if (merge.size() == 1) {
+      final Circuit circuit = merge.get(0);
+      circuits.remove(circuit);
+      circuits.add(circuit.addConnection(connection).get());
+    } else if (merge.size() == 2) {
+      final Circuit circuit1 = merge.get(0);
+      final Circuit circuit2 = merge.get(1);
+      circuits.remove(circuit1);
+      circuits.remove(circuit2);
+      circuits.add(Circuit.of(circuit1, circuit2));
     } else {
-      final Set<Point3D> set = new HashSet<>();
-      set.add(connection.p1());
-      set.add(connection.p2());
-      circuits.add(set);
-      return true;
+      throw new IllegalStateException("Oops");
     }
   }
 
