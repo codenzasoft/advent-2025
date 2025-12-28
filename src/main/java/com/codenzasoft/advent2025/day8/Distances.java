@@ -11,6 +11,7 @@ public class Distances {
     final List<String> lines = PuzzleHelper.getInputLines("input-day-8.txt");
     final List<Point3D> point3DS = lines.stream().map(Point3D::parse).toList();
     System.out.println("The answer to part 1 is: " + part1(point3DS, 1000));
+    System.out.println("The answer to part 2 is: " + part2(point3DS));
   }
 
   public static long part1(final List<Point3D> points, final int numConnections) {
@@ -29,6 +30,24 @@ public class Distances {
         new ArrayList<>(circuits.stream().map(Circuit::getPointsSize).toList());
     sizes.sort(Comparator.reverseOrder());
     return sizes.stream().limit(3).reduce(1, (a, b) -> a * b);
+  }
+
+  public static long part2(final List<Point3D> points) {
+    final List<Connection> connections = buildConnections(points);
+    System.out.println("Number of possible connections: " + connections.size());
+    connections.sort(Comparator.comparingDouble(Connection::distance));
+
+    final List<Circuit> circuits = new ArrayList<>(points.stream().map(Circuit::of).toList());
+    int i = 0;
+    Connection lastConnection = null;
+    while (circuits.size() > 1) {
+      lastConnection = connections.get(i);
+      addConnectionToCircuits(lastConnection, circuits);
+      i++;
+    }
+
+    System.out.println("Part 2 final connection: " + lastConnection);
+    return lastConnection.p1().x() * lastConnection.p2().x();
   }
 
   /**
