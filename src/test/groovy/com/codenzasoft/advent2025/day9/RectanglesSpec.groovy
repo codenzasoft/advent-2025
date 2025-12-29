@@ -96,4 +96,28 @@ class RectanglesSpec extends Specification {
         !polygon.contains(new Point(2,1))
         !polygon.contains(new Point(2,7))
     }
+
+    def "test rectangle containment"() {
+        setup:
+        var lines = [
+                "7,1",
+                "11,1",
+                "11,7",
+                "9,7",
+                "9,5",
+                "2,5",
+                "2,3",
+                "7,3"
+        ]
+        var points = Rectangles.parsePoints(lines)
+        var poly = Rectangles.buildPolygon(points)
+
+        when:
+        var inside = new Rectangle(points.get(0), points.get(4))
+        var outside = new Rectangle(points.get(0), points.get(6))
+
+        then:
+        poly.contains(inside)
+        !poly.contains(outside)
+    }
 }

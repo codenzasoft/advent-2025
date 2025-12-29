@@ -30,10 +30,7 @@ public record Line(Point p1, Point p2) {
   }
 
   public boolean xRayCrossesY(Point point) {
-    return isVertical()
-        && point.x() < getMinX()
-        && point.y() >= getMinY()
-        && point.y() <= getMaxY();
+    return isVertical() && point.x() < getMinX() && point.y() > getMinY() && point.y() <= getMaxY();
   }
 
   public List<Point> points() {
@@ -58,33 +55,27 @@ public record Line(Point p1, Point p2) {
       return isOnLine(line.p1()) || isOnLine(line.p2());
     }
     if (isVertical() && line.isHorizontal()) {
-      return isOnLine(new Point(line.p1().x(), p1().y()));
+      return isOnLine(new Point(getMinX(), line.getMinY() + 1));
     }
     if (isHorizontal() && line.isVertical()) {
-      final Point p = new Point(line.p1().x(), p1().y());
-      return isOnLine(p) && line.isOnLine(p);
+      final Point p = new Point(line.getMinX() + 1, getMinY());
+      return isOnLine(p);
     }
     return false;
   }
 
   public boolean crosses(final Line line) {
-    if (isVertical() && line.isVertical()) {
-      return isOnLine(line.p1()) || isOnLine(line.p2());
-    }
-    if (isHorizontal() && line.isHorizontal()) {
-      return isOnLine(line.p1()) || isOnLine(line.p2());
-    }
     if (isVertical() && line.isHorizontal()) {
-      return line.getMinX() < p1().x()
-          && line.getMaxX() > p1().x()
+      return line.getMinX() < getMinX()
+          && line.getMaxX() > getMinX()
           && line.getMinY() >= getMinY()
-          && line.getMinY() <= getMaxY();
+          && line.getMinY() < getMaxY();
     }
     if (isHorizontal() && line.isVertical()) {
-      return line.getMaxY() > p1().y()
-          && line.getMinY() < p1().y()
+      return line.getMaxY() > getMinY()
+          && line.getMinY() < getMinY()
           && line.getMinX() >= getMinX()
-          && line.getMinX() <= getMaxX();
+          && line.getMinX() < getMaxX();
     }
     return false;
   }

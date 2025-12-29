@@ -36,7 +36,7 @@ class LineSpec extends Specification {
 
         then:
         !line.xRayCrossesY(p1)
-        line.xRayCrossesY(p2)
+        !line.xRayCrossesY(p2)
         line.xRayCrossesY(p3)
         line.xRayCrossesY(p4)
         !line.xRayCrossesY(p5)

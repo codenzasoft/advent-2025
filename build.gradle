@@ -39,7 +39,7 @@ spotless {
 }
 
 application {
-    mainClass = 'com.codenzasoft.advent2025.day8.Distances'
+    mainClass = 'com.codenzasoft.advent2025.day9.Rectangles'
 }
 
 test {

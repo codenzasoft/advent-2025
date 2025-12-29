@@ -13,7 +13,22 @@ public record Polygon(List<Line> lines) {
   }
 
   public boolean contains(final Rectangle rectangle) {
-    return rectangle.getLines().stream().allMatch(this::contains);
+    // return rectangle.getLines().stream().allMatch(this::contains);
+    if (rectangle.getVertices().stream().allMatch(this::contains)) {
+      for (final Line line : rectangle.getLines()) {
+        if (line.isVertical()) {
+          if (getHorizontalLines().stream().anyMatch(hline -> hline.crosses(line))) {
+            return false;
+          }
+        } else {
+          if (getVerticalLines().stream().anyMatch(vline -> vline.crosses(line))) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
   public boolean contains(final Point point) {
@@ -28,14 +43,5 @@ public record Polygon(List<Line> lines) {
 
   public boolean contains(final Line line) {
     return line.points().stream().allMatch(this::contains);
-    //    if (contains(line.p1()) && contains(line.p2())) {
-    //      if (line.isHorizontal()) {
-    //        return getVerticalLines().stream().noneMatch(v -> v.crosses(line));
-    //      }
-    //      if (line.isVertical()) {
-    //        return getHorizontalLines().stream().noneMatch(h -> h.crosses(line));
-    //      }
-    //    }
-    //    return false;
   }
 }

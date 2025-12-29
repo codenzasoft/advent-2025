@@ -52,6 +52,9 @@ public class Rectangles {
             maxArea = area;
           }
         }
+        if (combinations % 100 == 0) {
+          System.out.println("Combinations... " + combinations);
+        }
       }
     }
     System.out.println("Combinations: " + combinations);
