@@ -46,24 +46,6 @@ class LineSpec extends Specification {
         !line.xRayCrossesY(p8)
     }
 
-    def "test line intersection"() {
-        when:
-        var hLine = new Line(new Point(10,10), new Point(20,10))
-        var vLine = new Line(new Point (15, 5), new Point(15,15))
-
-        then:
-        hLine.intersects(vLine)
-    }
-
-    def "test lines do not intersect"() {
-        when:
-        var hLine = new Line(new Point(10,10), new Point(20,10))
-        var vLine = new Line(new Point (5, 5), new Point(5,15))
-
-        then:
-        !hLine.intersects(vLine)
-    }
-
     def "test orientation"() {
         when:
         var hLine = new Line(new Point(10,10), new Point(20,10))

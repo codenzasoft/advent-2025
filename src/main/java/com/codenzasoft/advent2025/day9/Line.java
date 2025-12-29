@@ -47,23 +47,6 @@ public record Line(Point p1, Point p2) {
     return points;
   }
 
-  public boolean intersects(final Line line) {
-    if (isVertical() && line.isVertical()) {
-      return isOnLine(line.p1()) || isOnLine(line.p2());
-    }
-    if (isHorizontal() && line.isHorizontal()) {
-      return isOnLine(line.p1()) || isOnLine(line.p2());
-    }
-    if (isVertical() && line.isHorizontal()) {
-      return isOnLine(new Point(getMinX(), line.getMinY() + 1));
-    }
-    if (isHorizontal() && line.isVertical()) {
-      final Point p = new Point(line.getMinX() + 1, getMinY());
-      return isOnLine(p);
-    }
-    return false;
-  }
-
   public boolean crosses(final Line line) {
     if (isVertical() && line.isHorizontal()) {
       return line.getMinX() < getMinX()

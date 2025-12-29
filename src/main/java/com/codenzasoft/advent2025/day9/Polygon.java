@@ -13,7 +13,6 @@ public record Polygon(List<Line> lines) {
   }
 
   public boolean contains(final Rectangle rectangle) {
-    // return rectangle.getLines().stream().allMatch(this::contains);
     if (rectangle.getVertices().stream().allMatch(this::contains)) {
       for (final Line line : rectangle.getLines()) {
         if (line.isVertical()) {
