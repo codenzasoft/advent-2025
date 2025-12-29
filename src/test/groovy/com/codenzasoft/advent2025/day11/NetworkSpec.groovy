@@ -27,4 +27,31 @@ class NetworkSpec extends Specification {
         then:
         result == 5
     }
+
+    def "test graph building and path finding with fft and dac"() {
+        setup:
+        var lines = [
+                "svr: aaa bbb",
+                "aaa: fft",
+                "fft: ccc",
+                "bbb: tty",
+                "tty: ccc",
+                "ccc: ddd eee",
+                "ddd: hub",
+                "hub: fff",
+                "eee: dac",
+                "dac: fff",
+                "fff: ggg hhh",
+                "ggg: out",
+                "hhh: out"
+        ]
+        var devices = lines.stream().map(Device::parse).toList();
+        var graph = Network.buildGraph(devices)
+
+        when:
+        var result = Network.part2(devices)
+
+        then:
+        result == 2
+    }
 }

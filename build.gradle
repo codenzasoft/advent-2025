@@ -40,7 +40,7 @@ spotless {
 }
 
 application {
-    mainClass = 'com.codenzasoft.advent2025.day9.Rectangles'
+    mainClass = 'com.codenzasoft.advent2025.day11.Network'
 }
 
 test {
