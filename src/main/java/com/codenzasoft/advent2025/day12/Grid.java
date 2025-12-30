@@ -27,6 +27,9 @@ public record Grid(char[][] grid) {
   }
 
   public boolean isEmpty(final int row, final int col) {
+    if (row < 0 || row >= getHeight() || col < 0 || col >= getWidth()) {
+      return false;
+    }
     return grid[row][col] == EMPTY;
   }
 
@@ -40,6 +43,35 @@ public record Grid(char[][] grid) {
       }
     }
     return units;
+  }
+
+  public int getConnectedUnits(final int lowerBound) {
+    int units = 0;
+    for (int row = 0; row < getHeight(); row++) {
+      for (int col = 0; col < getWidth(); col++) {
+        if (isEmpty(row, col)) {
+          final int emptyNeighbourCount = emptyNeighbourCount(row, col);
+          if (emptyNeighbourCount >= lowerBound - 1) {
+            units++;
+          }
+        }
+      }
+    }
+    return units;
+  }
+
+  public int emptyNeighbourCount(final int row, final int col) {
+    int empty = 0;
+    for (int colOffset = 0; colOffset < 3; colOffset++) {
+      for (int rowOffset = 0; rowOffset < 3; rowOffset++) {
+        if (!(rowOffset == 1 && colOffset == 1)) {
+          if (isEmpty(row - 1 + rowOffset, col - 1 + colOffset)) {
+            empty += 1;
+          }
+        }
+      }
+    }
+    return empty;
   }
 
   public List<Position> getEmptyPositions() {

@@ -11,6 +11,8 @@ class GridSpec extends Specification {
 
         then:
         grid.getEmptyUnits() == 25
+        grid.emptyNeighbourCount(0,0) == 3
+        grid.getConnectedUnits(9) == 9
         grid.canInsert(present, 0, 0)
         grid.canInsert(present, 0, 1)
         grid.canInsert(present, 0, 2)

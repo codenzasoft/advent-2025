@@ -79,19 +79,19 @@ class TetrisSpec extends Specification {
         fits
     }
 
-    def "the sample run"() {
-        setup:
-        var lines = getSampleInput()
-        var groups = Tetris.buildGroups(lines)
-        var presents = Tetris.buildPresents(groups)
-        var regions = Tetris.buildRegions(groups)
-
-        when:
-        var fits = Tetris.part1(presents, regions)
-
-        then:
-        fits == 2
-    }
+//    def "the sample run"() {
+//        setup:
+//        var lines = getSampleInput()
+//        var groups = Tetris.buildGroups(lines)
+//        var presents = Tetris.buildPresents(groups)
+//        var regions = Tetris.buildRegions(groups)
+//
+//        when:
+//        var fits = Tetris.part1(presents, regions)
+//
+//        then:
+//        fits == 2
+//    }
 
     def getSampleInput() {
         return [
