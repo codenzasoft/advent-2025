@@ -11,10 +11,20 @@ public class Tetris {
     final List<List<String>> groups = buildGroups(lines);
     final List<Present> presents = buildPresents(groups);
     final List<Region> regions = buildRegions(groups);
+    System.out.println("The answer to part 1 is: " + part1(presents, regions));
   }
 
   public static int part1(final List<Present> presents, final List<Region> regions) {
-    return 0;
+    int fits = 0;
+    for (final Region region : regions) {
+      if (region.canFit(presents)) {
+        fits++;
+        System.out.println("Region " + region + " fits");
+      } else {
+        System.out.println("Region " + region + " does not fit");
+      }
+    }
+    return fits;
   }
 
   public static List<List<String>> buildGroups(final List<String> lines) {

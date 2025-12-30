@@ -2,6 +2,7 @@ package com.codenzasoft.advent2025.day12;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.iterators.PermutationIterator;
 
 public record Region(int width, int height, List<Integer> quantities) {
 
@@ -41,7 +42,37 @@ public record Region(int width, int height, List<Integer> quantities) {
     return requiredQuantities.stream().toList();
   }
 
-  public boolean fitPermutation(final List<Present> presents) {
+  public boolean canFit(final List<Present> presents) {
+    final List<Present> quantities = getRequiredQuantities(presents);
+
+    // quick disqualification if not enough space
+    final int presentUnits = quantities.stream().mapToInt(Present::getUnits).sum();
+    if (presentUnits > (height * width)) {
+      return false;
+    }
+
+    // rotationGroups contains the 4 possible rotations of each required present
+    final List<List<Present>> rotationGroups =
+        quantities.stream().map(Present::getRotations).toList();
+    final GroupCombinationsIterator<Present> iterator =
+        new GroupCombinationsIterator<>(rotationGroups);
+    // iterate through all combinations of present rotations (order not important)
+    while (iterator.hasNext()) {
+      final List<Present> combination = iterator.next();
+      // iterate through all permutations of the combination being attempted (order important)
+      final PermutationIterator<Present> permutationIterator =
+          new PermutationIterator<>(combination);
+      while (permutationIterator.hasNext()) {
+        final List<Present> permutation = permutationIterator.next();
+        if (fitPermutation(permutation)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean fitPermutation(final List<Present> presents) {
     Grid grid = emptyGrid();
     for (final Present present : presents) {
       final List<Position> available = grid.getEmptyPositions();
