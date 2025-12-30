@@ -16,6 +16,7 @@ class PresentSpec extends Specification {
         present.getWidth() == 3
         present.getHeight() == 3
         present.id() == "3"
+        present.getUnits() == 7
         present.toString() == "##.\n###\n##.\n"
     }
 

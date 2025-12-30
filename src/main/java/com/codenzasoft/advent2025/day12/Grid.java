@@ -1,5 +1,8 @@
 package com.codenzasoft.advent2025.day12;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public record Grid(char[][] grid) {
 
   public static final char BLOCK = '#';
@@ -27,6 +30,34 @@ public record Grid(char[][] grid) {
     return grid[row][col] == EMPTY;
   }
 
+  public int getEmptyUnits() {
+    int units = 0;
+    for (int row = 0; row < getHeight(); row++) {
+      for (int col = 0; col < getWidth(); col++) {
+        if (isEmpty(row, col)) {
+          units += 1;
+        }
+      }
+    }
+    return units;
+  }
+
+  public List<Position> getEmptyPositions() {
+    final List<Position> emptyPositions = new ArrayList<>();
+    for (int row = 0; row < getHeight(); row++) {
+      for (int col = 0; col < getWidth(); col++) {
+        if (isEmpty(row, col)) {
+          emptyPositions.add(new Position(row, col));
+        }
+      }
+    }
+    return emptyPositions;
+  }
+
+  public boolean canInsert(final Present present, final Position position) {
+    return canInsert(present, position.row(), position.col());
+  }
+
   public boolean canInsert(final Present present, final int row, final int col) {
     for (int presentRow = 0; presentRow < present.getHeight(); presentRow++) {
       for (int presentCol = 0; presentCol < present.getWidth(); presentCol++) {
@@ -43,6 +74,10 @@ public record Grid(char[][] grid) {
       }
     }
     return true;
+  }
+
+  public Grid insert(final Present present, final Position position) {
+    return insert(present, position.row(), position.col());
   }
 
   public Grid insert(final Present present, final int row, final int col) {

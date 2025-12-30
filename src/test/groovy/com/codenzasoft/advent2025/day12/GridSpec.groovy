@@ -10,6 +10,7 @@ class GridSpec extends Specification {
         def present = PresentSpec.buildTestPresent()
 
         then:
+        grid.getEmptyUnits() == 25
         grid.canInsert(present, 0, 0)
         grid.canInsert(present, 0, 1)
         grid.canInsert(present, 0, 2)
@@ -27,6 +28,7 @@ class GridSpec extends Specification {
 
         then:
         grid2.toString() == ".....\n..##.\n..###\n..##.\n.....\n"
+        grid2.getEmptyUnits() == 18
     }
 
     def "def test tetris fit"() {

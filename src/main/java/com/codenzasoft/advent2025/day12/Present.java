@@ -17,6 +17,18 @@ public record Present(String id, char[][] shape) {
     return shape[row][col] == Grid.EMPTY;
   }
 
+  public int getUnits() {
+    int units = 0;
+    for (int row = 0; row < getHeight(); row++) {
+      for (int col = 0; col < getWidth(); col++) {
+        if (!isEmpty(row, col)) {
+          units++;
+        }
+      }
+    }
+    return units;
+  }
+
   public int getWidth() {
     return shape[0].length;
   }
