@@ -7,7 +7,7 @@ class LightSpec extends Specification {
     def "test button press"() {
         setup:
         var lights = Lights.parse("[.##.]")
-        var buttons = Buttons.parse("(0,2)")
+        var buttons = Button.parse(1, "(0,2)")
 
         when:
         var next = lights.press(buttons)

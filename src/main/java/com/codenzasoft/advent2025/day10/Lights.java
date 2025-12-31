@@ -21,9 +21,9 @@ public record Lights(List<Boolean> states) {
     return new Lights(states);
   }
 
-  public Lights press(final Buttons buttons) {
+  public Lights press(final Button button) {
     final List<Boolean> next = new ArrayList<>(this.states);
-    for (int offset : buttons.buttonOffsets()) {
+    for (int offset : button.buttonOffsets()) {
       next.set(offset, !(next.get(offset)));
     }
     return new Lights(next);

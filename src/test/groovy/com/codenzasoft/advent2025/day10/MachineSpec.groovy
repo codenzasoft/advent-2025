@@ -13,12 +13,13 @@ class MachineSpec extends Specification {
 
         then:
         machine.lights().states() == [false, true, true, false]
-        machine.buttonsList().get(0).buttonOffsets() == new int[]{3}
-        machine.buttonsList().get(1).buttonOffsets() == new int[]{1,3}
-        machine.buttonsList().get(2).buttonOffsets() == new int[]{2}
-        machine.buttonsList().get(3).buttonOffsets() == new int[]{2,3}
-        machine.buttonsList().get(4).buttonOffsets() == new int[]{0,2}
-        machine.buttonsList().get(5).buttonOffsets() == new int[]{0,1}
+        machine.buttonList().get(0).buttonOffsets() == new int[]{3}
+        machine.buttonList().get(1).buttonOffsets() == new int[]{1,3}
+        machine.buttonList().get(2).buttonOffsets() == new int[]{2}
+        machine.buttonList().get(3).buttonOffsets() == new int[]{2,3}
+        machine.buttonList().get(4).buttonOffsets() == new int[]{0,2}
+        machine.buttonList().get(5).buttonOffsets() == new int[]{0,1}
+        machine.joltage().levels() == [3, 5, 4, 7]
     }
 
     def "test part 1 sum"() {
