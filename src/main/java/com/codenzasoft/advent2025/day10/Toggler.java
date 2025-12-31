@@ -45,6 +45,7 @@ public class Toggler {
   }
 
   public static int solveJoltage(final Machine machine) {
+    JoltageLevels outputLevels = JoltageLevels.zero(machine.joltage().levels().size());
     List<ButtonCombination> remaining = machine.getIndividualCombinations();
     int totalPresses = 0;
     while (!remaining.isEmpty()) {
@@ -73,6 +74,7 @@ public class Toggler {
         button = max.buttons().get(0);
         presses = max.presses();
       }
+      outputLevels = outputLevels.press(button, presses);
       totalPresses += presses;
       remaining = remaining.stream().map(c -> c.getRemaining(button, presses)).toList();
       final List<ButtonCombination> empty =
@@ -85,6 +87,11 @@ public class Toggler {
                 .map(Optional::get)
                 .toList();
       }
+    }
+    if (outputLevels.equals(machine.joltage())) {
+      System.out.println("Expected Joltage: " + outputLevels);
+    } else {
+      System.out.println("Unexpected Joltage: " + outputLevels + " vs" + machine.joltage());
     }
     return totalPresses;
   }
