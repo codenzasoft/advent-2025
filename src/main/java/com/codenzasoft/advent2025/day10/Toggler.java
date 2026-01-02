@@ -68,7 +68,8 @@ public class Toggler {
     if (combinationIndex < combinations.size()) {
       final ButtonCombination combination = combinations.get(combinationIndex);
       final int maxPresses = combination.getMaxAllowablePresses(machine);
-      for (int p = 1; p <= maxPresses; p++) {
+      final int currLevel = levels.levels().get(combinationIndex);
+      for (int p = currLevel; p <= maxPresses; p++) {
         final Iterator<List<Button>> iterator = combination.getCombinations(p);
         while (iterator.hasNext()) {
           total++;
