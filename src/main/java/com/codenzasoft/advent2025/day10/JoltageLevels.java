@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2025.day10;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public record JoltageLevels(List<Integer> levels) {
@@ -15,12 +16,25 @@ public record JoltageLevels(List<Integer> levels) {
     return new JoltageLevels(levelList);
   }
 
+  public JoltageLevels duplicate() {
+    return new JoltageLevels(new ArrayList<>(levels()));
+  }
+
   public static JoltageLevels zero(final int size) {
     final List<Integer> levelList = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       levelList.add(0);
     }
     return new JoltageLevels(levelList);
+  }
+
+  public boolean isExceededBy(final JoltageLevels joltage) {
+    for (int i = 0; i < levels.size(); i++) {
+      if (joltage.levels.get(i) > levels.get(i)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public JoltageLevels press(final Button button, final int presses) {
@@ -33,5 +47,12 @@ public record JoltageLevels(List<Integer> levels) {
       }
     }
     return new JoltageLevels(newLevels);
+  }
+
+  public int getMaxAllowablePresses(final Button button) {
+    return Arrays.stream(button.buttonOffsets())
+        .map(buttonOffset -> levels().get(buttonOffset))
+        .min()
+        .orElse(0);
   }
 }

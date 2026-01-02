@@ -1,5 +1,6 @@
 package com.codenzasoft.advent2025.day10
 
+import com.codenzasoft.advent2025.day12.Tetris
 import spock.lang.Specification
 
 class TogglerSpec extends Specification {
@@ -21,9 +22,11 @@ class TogglerSpec extends Specification {
 
         when:
         int min = Toggler.solveJoltage(machine)
+        int min2 = Toggler.solveJoltage2(machine)
 
         then:
         min == 10
+        min2 == 10
     }
 
     def "test solving another machine's joltage"() {
@@ -32,9 +35,11 @@ class TogglerSpec extends Specification {
 
         when:
         int min = Toggler.solveJoltage(machine)
+        int min2 = Toggler.solveJoltage2(machine)
 
         then:
         min == 12
+        min2 == 12
     }
 
     def "test solving sample machine joltages"() {

@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2025.day10;
 
 import java.util.*;
+import org.paukov.combinatorics3.Generator;
 
 public record ButtonCombination(List<Button> buttons, int presses) {
 
@@ -28,5 +29,16 @@ public record ButtonCombination(List<Button> buttons, int presses) {
       return Optional.empty();
     }
     return Optional.of(new ButtonCombination(newButtons, presses()));
+  }
+
+  public int getMaxAllowablePresses(final Machine machine) {
+    return buttons().stream()
+        .mapToInt(button -> machine.joltage().getMaxAllowablePresses(button))
+        .max()
+        .orElse(0);
+  }
+
+  public Iterator<List<Button>> getCombinations(final int pressCount) {
+    return Generator.combination(buttons()).multi(pressCount).iterator();
   }
 }

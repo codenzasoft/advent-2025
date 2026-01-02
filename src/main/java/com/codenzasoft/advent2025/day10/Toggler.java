@@ -10,7 +10,7 @@ public class Toggler {
     final List<String> lines = PuzzleHelper.getInputLines("input-day-10.txt");
     final List<Machine> machines = lines.stream().map(Machine::parse).toList();
     System.out.println("The sum for part 1 is: " + part1(machines));
-    System.out.println("The sum for part 2 is: " + part2(machines));
+    System.out.println("The sum for part 2 is: " + part2b(machines));
   }
 
   public static int part1(final List<Machine> machines) {
@@ -42,6 +42,61 @@ public class Toggler {
 
   public static int part2(final List<Machine> machines) {
     return machines.stream().mapToInt(Toggler::solveJoltage).sum();
+  }
+
+  public static int part2b(final List<Machine> machines) {
+    return machines.stream().mapToInt(Toggler::solveJoltage2).sum();
+  }
+
+  public static int solveJoltage2(final Machine machine) {
+    final List<ButtonCombination> seed = machine.getIndividualCombinations();
+    JoltageLevels value = JoltageLevels.zero(machine.joltage().levels().size());
+    final List<Integer> solvedPresses = new ArrayList<>();
+    int total = tryJoltage(machine, seed, 0, value, 0, solvedPresses, 0);
+    System.out.println("Total combinations: " + total);
+    return solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
+  }
+
+  public static int tryJoltage(
+      final Machine machine,
+      final List<ButtonCombination> combinations,
+      final int combinationIndex,
+      final JoltageLevels levels,
+      final int presses,
+      final List<Integer> solvedPresses,
+      int total) {
+    if (combinationIndex < combinations.size()) {
+      final ButtonCombination combination = combinations.get(combinationIndex);
+      final int maxPresses = combination.getMaxAllowablePresses(machine);
+      for (int p = 1; p <= maxPresses; p++) {
+        final Iterator<List<Button>> iterator = combination.getCombinations(p);
+        while (iterator.hasNext()) {
+          total++;
+          JoltageLevels nextLevel = levels.duplicate();
+          int nextPresses = presses;
+          final List<Button> buttons = iterator.next();
+          for (final Button button : buttons) {
+            nextLevel = nextLevel.press(button, 1);
+            nextPresses++;
+          }
+          if (machine.joltage().equals(nextLevel)) {
+            solvedPresses.add(nextPresses);
+          } else if (!machine.joltage().isExceededBy(nextLevel)
+              && combinationIndex < combinations.size()) {
+            total =
+                tryJoltage(
+                    machine,
+                    combinations,
+                    combinationIndex + 1,
+                    nextLevel,
+                    nextPresses,
+                    solvedPresses,
+                    total);
+          }
+        }
+      }
+    }
+    return total;
   }
 
   public static int solveJoltage(final Machine machine) {
