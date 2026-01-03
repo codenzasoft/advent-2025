@@ -52,9 +52,10 @@ public class Toggler {
     final List<ButtonCombination> seed = machine.getIndividualCombinations();
     JoltageLevels value = JoltageLevels.zero(machine.joltage().levels().size());
     final List<Integer> solvedPresses = new ArrayList<>();
-    int total = tryJoltage(machine, seed, 0, value, 0, solvedPresses, 0);
-    System.out.println("Total combinations: " + total);
-    return solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
+    int total = tryJoltage(machine, seed, 0, value, 0, solvedPresses, 0, List.of());
+    final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
+    System.out.println("Total combinations: " + total + " Min: " + min);
+    return min;
   }
 
   public static int tryJoltage(
@@ -64,34 +65,42 @@ public class Toggler {
       final JoltageLevels levels,
       final int presses,
       final List<Integer> solvedPresses,
-      int total) {
+      int total,
+      List<List<Button>> currentCombination) {
     if (combinationIndex < combinations.size()) {
+      final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(Integer.MAX_VALUE);
       final ButtonCombination combination = combinations.get(combinationIndex);
       final int maxPresses = combination.getMaxAllowablePresses(machine);
       for (int p = 1; p <= maxPresses; p++) {
-        final Iterator<List<Button>> iterator = combination.getCombinations(p);
-        while (iterator.hasNext()) {
-          total++;
-          JoltageLevels nextLevel = levels.duplicate();
-          int nextPresses = presses;
-          final List<Button> buttons = iterator.next();
-          for (final Button button : buttons) {
-            nextLevel = nextLevel.press(button, 1);
-            nextPresses++;
-          }
-          if (machine.joltage().equals(nextLevel)) {
-            solvedPresses.add(nextPresses);
-          } else if (!machine.joltage().isExceededBy(nextLevel)
-              && combinationIndex < combinations.size()) {
-            total =
-                tryJoltage(
-                    machine,
-                    combinations,
-                    combinationIndex + 1,
-                    nextLevel,
-                    nextPresses,
-                    solvedPresses,
-                    total);
+        if (presses + p < min) {
+          final Iterator<List<Button>> iterator = combination.getCombinations(p);
+          while (iterator.hasNext()) {
+            total++;
+            JoltageLevels nextLevel = levels.duplicate();
+            int nextPresses = presses;
+            final List<Button> buttons = iterator.next();
+            final List<List<Button>> curr = new ArrayList<>(currentCombination);
+            curr.add(buttons);
+            for (final Button button : buttons) {
+              nextLevel = nextLevel.press(button, 1);
+              nextPresses++;
+            }
+            if (machine.joltage().equals(nextLevel)) {
+              solvedPresses.add(nextPresses);
+              System.out.println("Presses: " + nextPresses + " Combination: " + curr);
+            } else if (!machine.joltage().isExceededBy(nextLevel)
+                && combinationIndex < combinations.size()) {
+              total =
+                  tryJoltage(
+                      machine,
+                      combinations,
+                      combinationIndex + 1,
+                      nextLevel,
+                      nextPresses,
+                      solvedPresses,
+                      total,
+                      curr);
+            }
           }
         }
       }
