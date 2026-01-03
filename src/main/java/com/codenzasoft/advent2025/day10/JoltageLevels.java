@@ -1,8 +1,6 @@
 package com.codenzasoft.advent2025.day10;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public record JoltageLevels(List<Integer> levels) {
 
@@ -20,12 +18,20 @@ public record JoltageLevels(List<Integer> levels) {
     return new JoltageLevels(new ArrayList<>(levels()));
   }
 
-  public static JoltageLevels zero(final int size) {
+  public static JoltageLevels value(final int size, final int value) {
     final List<Integer> levelList = new ArrayList<>();
     for (int i = 0; i < size; i++) {
-      levelList.add(0);
+      levelList.add(value);
     }
     return new JoltageLevels(levelList);
+  }
+
+  public int getMinValue() {
+    int min = Integer.MAX_VALUE;
+    for (int i = 0; i < levels().size(); i++) {
+      min = Math.min(min, levels().get(i));
+    }
+    return min;
   }
 
   public boolean isExceededBy(final JoltageLevels joltage) {
@@ -54,5 +60,28 @@ public record JoltageLevels(List<Integer> levels) {
         .map(buttonOffset -> levels().get(buttonOffset))
         .min()
         .orElse(0);
+  }
+
+  public Optional<Integer> getGreatestCommonDivisor() {
+    final int max = levels().stream().mapToInt(i -> i).max().orElse(0) / 2;
+    int gcd = -1;
+    for (int i = 2; i < max; i++) {
+      final int div = i;
+      if (levels().stream().allMatch(l -> l % div == 0)) {
+        gcd = div;
+      }
+    }
+    if (gcd == -1) {
+      return Optional.empty();
+    }
+    return Optional.of(gcd);
+  }
+
+  public JoltageLevels subtract(final JoltageLevels joltage) {
+    final List<Integer> newLevels = new ArrayList<>();
+    for (int i = 0; i < levels().size(); i++) {
+      newLevels.add(levels().get(i) - joltage.levels().get(i));
+    }
+    return new JoltageLevels(newLevels);
   }
 }

@@ -27,4 +27,8 @@ public record Machine(Lights lights, List<Button> buttonList, JoltageLevels jolt
     }
     return combinations;
   }
+
+  public JoltageLevels newJoltage(final int value) {
+    return JoltageLevels.value(joltage().levels().size(), value);
+  }
 }

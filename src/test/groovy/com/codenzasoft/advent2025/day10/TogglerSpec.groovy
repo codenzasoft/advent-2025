@@ -1,6 +1,6 @@
 package com.codenzasoft.advent2025.day10
 
-import com.codenzasoft.advent2025.day12.Tetris
+
 import spock.lang.Specification
 
 class TogglerSpec extends Specification {
@@ -21,12 +21,10 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
 
         when:
-        int min = Toggler.solveJoltage(machine)
-        int min2 = Toggler.solveJoltage2(machine)
+        int min = Toggler.solve(machine)
 
         then:
         min == 10
-        min2 == 10
     }
 
     def "test solving another machine's joltage"() {
@@ -34,12 +32,38 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}")
 
         when:
-        int min = Toggler.solveJoltage(machine)
-        int min2 = Toggler.solveJoltage2(machine)
+        int min = Toggler.solve(machine)
 
         then:
         min == 12
-        min2 == 12
+    }
+
+    def "test solving for ones"() {
+        setup:
+        var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {1,1,1,1}")
+
+        when:
+        int r0 = Toggler.solve(machine)
+
+        then:
+        r0 == 2
+    }
+
+    def "test solving parts of the puzzle"() {
+        setup:
+        var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
+        var m1 = Machine.parse("[.##.] (2,3) (0,1) {3,3,4,4}")
+        var m2 = Machine.parse("[.##.] (3) (1,3) (2) (0,2) {0,2,0,3}")
+
+        when:
+        int r0 = Toggler.solve(machine)
+        int r1 = Toggler.solve(m1)
+        int r2 = Toggler.solve(m2)
+
+        then:
+        r0 == 10
+        r1 == 7
+        r2 == 3
     }
 
     def "test solving sample machine joltages"() {
