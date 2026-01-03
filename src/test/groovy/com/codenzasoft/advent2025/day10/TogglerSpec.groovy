@@ -10,7 +10,7 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
 
         when:
-        int min = Toggler.solveMachine(machine)
+        int min = Toggler.solveMachineLights(machine)
 
         then:
         min == 2
@@ -22,9 +22,11 @@ class TogglerSpec extends Specification {
 
         when:
         int min = Toggler.solve(machine)
+        int parts = Toggler.solveInParts(machine)
 
         then:
         min == 10
+        parts == 10
     }
 
     def "test solving another machine's joltage"() {

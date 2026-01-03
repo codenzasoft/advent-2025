@@ -2,6 +2,8 @@ package com.codenzasoft.advent2025.day10;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.math3.util.Combinations;
 import org.paukov.combinatorics3.Generator;
 
@@ -11,14 +13,14 @@ public class Toggler {
     final List<String> lines = PuzzleHelper.getInputLines("input-day-10.txt");
     final List<Machine> machines = lines.stream().map(Machine::parse).toList();
     System.out.println("The sum for part 1 is: " + part1(machines));
-    System.out.println("The sum for part 2 is: " + solveForMinValue(machines));
+    System.out.println("The sum for part 2 is: " + solveInParts(machines));
   }
 
   public static int part1(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::solveMachine).sum();
+    return machines.stream().mapToInt(Toggler::solveMachineLights).sum();
   }
 
-  public static int solveMachine(final Machine machine) {
+  public static int solveMachineLights(final Machine machine) {
     final int n = machine.buttonList().size();
     int minButtons = n;
     for (int m = 1; m <= n; m++) {
@@ -45,18 +47,14 @@ public class Toggler {
     return machines.stream().mapToInt(Toggler::solve).sum();
   }
 
-  public static int solveForMinValue(final List<Machine> machines) {
-    return machines.stream().mapToInt(m -> solveForValue(m, m.joltage().getMinValue())).sum();
-  }
-
-  public static int solveForValue(final Machine machine, final int value) {
-    System.out.println("Solving for value: " + value);
+  public static int solveForValue(final Machine machine, final JoltageLevels solution, final ExpirationTime expirationTime) {
+    System.out.println("Solving for value: " + solution);
     final List<ButtonCombination> seed = machine.getIndividualCombinations();
     JoltageLevels zero = machine.newJoltage(0);
     final List<Integer> solvedPresses = new ArrayList<>();
     int total =
         solve(
-            machine.newJoltage(value),
+            solution,
             seed,
             0,
             zero,
@@ -64,9 +62,9 @@ public class Toggler {
             solvedPresses,
             0,
             List.of(),
-            ExpirationTime.never());
+            expirationTime);
     final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
-    System.out.println("Value (" + value + ") combinations: " + total + " Min: " + min);
+    System.out.println("Value (" + seed + ") combinations: " + total + " Min: " + min);
     return min;
   }
 
@@ -88,6 +86,28 @@ public class Toggler {
     final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
     System.out.println("Total combinations: " + total + " Min: " + min);
     return min;
+  }
+
+  public static int solveInParts(final List<Machine> machines) {
+    return machines.stream().mapToInt(Toggler::solveInParts).sum();
+  }
+
+  public static int solveInParts(final Machine machine) {
+    final ExpirationTime expirationTime = ExpirationTime.after(TimeUnit.SECONDS, 10);
+    final JoltageLevels minJoltage = machine.newJoltage(machine.joltage().getMinValue());
+    final int part1 = solveForValue(machine, minJoltage, expirationTime);
+    if (part1 < 0) {
+      System.out.println("UNSOLVED!");
+      return -1;
+    } else {
+      final JoltageLevels remainingJoltage = machine.joltage().subtract(minJoltage);
+      final int part2 = solveForValue(machine, remainingJoltage, expirationTime);
+      if (part2 < 0) {
+        System.out.println("UNSOLVED!");
+        return -1;
+      }
+      return part2 + part1;
+    }
   }
 
   public static int solve(
