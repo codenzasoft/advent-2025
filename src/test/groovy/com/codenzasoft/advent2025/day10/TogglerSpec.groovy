@@ -23,10 +23,14 @@ class TogglerSpec extends Specification {
         when:
         int min = Toggler.solve(machine)
         int parts = Toggler.solveInParts(machine)
+        int bfs = Toggler.bfs(machine)
+        int coeff = Toggler.solveCoefficients(machine)
 
         then:
         min == 10
         parts == 10
+        bfs == 10
+        coeff == 10
     }
 
     def "test solving another machine's joltage"() {

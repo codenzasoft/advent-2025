@@ -1,5 +1,8 @@
 package com.codenzasoft.advent2025.day10;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public record Button(int id, int[] buttonOffsets) {
 
   public static Button parse(int id, String input) {
@@ -19,5 +22,16 @@ public record Button(int id, int[] buttonOffsets) {
       }
     }
     return false;
+  }
+
+  public Vector getVector(final Machine machine) {
+    final List<Integer> values = new ArrayList<>();
+    for (int i = 0; i < machine.joltage().levels().size(); i++) {
+      values.add(0);
+    }
+    for (int buttonOffset : buttonOffsets) {
+      values.set(buttonOffset, 1);
+    }
+    return new Vector(values);
   }
 }

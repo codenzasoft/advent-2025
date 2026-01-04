@@ -3,7 +3,6 @@ package com.codenzasoft.advent2025.day10;
 import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.math3.util.Combinations;
 import org.paukov.combinatorics3.Generator;
 
@@ -13,7 +12,7 @@ public class Toggler {
     final List<String> lines = PuzzleHelper.getInputLines("input-day-10.txt");
     final List<Machine> machines = lines.stream().map(Machine::parse).toList();
     System.out.println("The sum for part 1 is: " + part1(machines));
-    System.out.println("The sum for part 2 is: " + solveInParts(machines));
+    System.out.println("The sum for part 2 is: " + solveCoefficients(machines));
   }
 
   public static int part1(final List<Machine> machines) {
@@ -47,22 +46,13 @@ public class Toggler {
     return machines.stream().mapToInt(Toggler::solve).sum();
   }
 
-  public static int solveForValue(final Machine machine, final JoltageLevels solution, final ExpirationTime expirationTime) {
+  public static int solveForValue(
+      final Machine machine, final JoltageLevels solution, final ExpirationTime expirationTime) {
     System.out.println("Solving for value: " + solution);
     final List<ButtonCombination> seed = machine.getIndividualCombinations();
     JoltageLevels zero = machine.newJoltage(0);
     final List<Integer> solvedPresses = new ArrayList<>();
-    int total =
-        solve(
-            solution,
-            seed,
-            0,
-            zero,
-            0,
-            solvedPresses,
-            0,
-            List.of(),
-            expirationTime);
+    int total = solve(solution, seed, 0, zero, 0, solvedPresses, 0, List.of(), expirationTime);
     final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
     System.out.println("Value (" + seed + ") combinations: " + total + " Min: " + min);
     return min;
@@ -165,5 +155,90 @@ public class Toggler {
       }
     }
     return total;
+  }
+
+  public static int bfs(final List<Machine> machines) {
+    return machines.stream().mapToInt(Toggler::solve).sum();
+  }
+
+  public static int bfs(final Machine machine) {
+    final Matrix matrix = machine.getMatrix();
+    final Vector solution = new Vector(machine.joltage().levels());
+    final Vector zeros = Vector.withAll(matrix.getColumnCount(), 0);
+    final Node root = new Node(zeros, 0);
+    final LinkedList<Node> queue = new LinkedList<>();
+    queue.add(root);
+    int total = 1;
+    while (!queue.isEmpty()) {
+      final Node node = queue.remove();
+      final List<Node> children = node.buildChildren(matrix, solution);
+      total += children.size();
+      final Optional<Node> winner =
+          children.stream().filter(c -> c.getVector().equals(solution)).findFirst();
+      if (winner.isPresent()) {
+        System.out.println("Winner (after " + total + "): " + winner.get());
+        return winner.get().getCount();
+      }
+      queue.addAll(children);
+    }
+    return -1;
+  }
+
+  public static int solveCoefficients(final List<Machine> machines) {
+    return machines.stream().mapToInt(Toggler::solveCoefficients).sum();
+  }
+
+  public static int solveCoefficients(final Machine machine) {
+    final List<Vector> vectors =
+        machine.buttonList().stream().map(b -> b.getVector(machine)).toList();
+    final Vector desiredJoltage = machine.joltage().getVector();
+    final Vector value = Vector.withAll(machine.joltage().levels().size(), 0);
+    final Vector coefficients = Vector.withAll(vectors.size(), 0);
+    final List<Vector> solutions = new ArrayList<>();
+    int total =
+        solveCoefficients(
+            desiredJoltage, value, coefficients, vectors, 0, solutions, 0, ExpirationTime.never());
+    final int min = solutions.stream().mapToInt(Vector::sum).min().orElse(0);
+    System.out.println("Total combinations: " + total + " Min: " + min);
+    return min;
+  }
+
+  public static int solveCoefficients(
+      final Vector desiredJoltage,
+      final Vector currentValue,
+      final Vector coefficients,
+      final List<Vector> vectors,
+      final int vectorIndex,
+      final List<Vector> solutions,
+      int totalCombinations,
+      final ExpirationTime expirationTime) {
+
+    if (vectorIndex < vectors.size()) {
+      final Vector remainingJoltage = desiredJoltage.subtract(currentValue);
+      final Vector vector = vectors.get(vectorIndex);
+      final int maxCoefficient = vector.getMaxCoefficient(remainingJoltage);
+      for (int coefficient = 0; coefficient <= maxCoefficient; coefficient++) {
+        final Vector nextCoefficients = coefficients.withValueAt(vectorIndex, coefficient);
+        final Vector multiple = vector.multiply(coefficient);
+        final Vector nextValue = currentValue.add(multiple);
+        totalCombinations++;
+        if (nextValue.equals(desiredJoltage)) {
+          solutions.add(nextCoefficients);
+          System.out.println("Solution (" + totalCombinations + "): " + nextCoefficients);
+        } else if (!nextValue.greaterThan(desiredJoltage)) {
+          totalCombinations =
+              solveCoefficients(
+                  desiredJoltage,
+                  nextValue,
+                  nextCoefficients,
+                  vectors,
+                  vectorIndex + 1,
+                  solutions,
+                  totalCombinations,
+                  expirationTime);
+        }
+      }
+    }
+    return totalCombinations;
   }
 }

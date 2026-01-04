@@ -31,4 +31,12 @@ public record Machine(Lights lights, List<Button> buttonList, JoltageLevels jolt
   public JoltageLevels newJoltage(final int value) {
     return JoltageLevels.value(joltage().levels().size(), value);
   }
+
+  public Matrix getMatrix() {
+    final List<Vector> vectors = new ArrayList<>();
+    for (Button button : buttonList()) {
+      vectors.add(button.getVector(this));
+    }
+    return new Matrix(vectors);
+  }
 }

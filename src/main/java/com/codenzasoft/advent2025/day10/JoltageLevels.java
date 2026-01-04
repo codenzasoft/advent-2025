@@ -84,4 +84,8 @@ public record JoltageLevels(List<Integer> levels) {
     }
     return new JoltageLevels(newLevels);
   }
+
+  public Vector getVector() {
+    return new Vector(levels());
+  }
 }
