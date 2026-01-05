@@ -190,7 +190,10 @@ public class Toggler {
 
   public static int solveCoefficients(final Machine machine) {
     final List<Vector> vectors =
-        machine.buttonList().stream().map(b -> b.getVector(machine)).toList();
+        machine.buttonList().stream()
+            .map(b -> b.getVector(machine))
+            .sorted(Comparator.comparing(Vector::sum))
+            .toList();
     final Vector desiredJoltage = machine.joltage().getVector();
     final Vector value = Vector.withAll(machine.joltage().levels().size(), 0);
     final Vector coefficients = Vector.withAll(vectors.size(), 0);
@@ -214,28 +217,37 @@ public class Toggler {
       final ExpirationTime expirationTime) {
 
     if (vectorIndex < vectors.size()) {
+      final OptionalInt minSolution = solutions.stream().mapToInt(Vector::sum).min();
       final Vector remainingJoltage = desiredJoltage.subtract(currentValue);
       final Vector vector = vectors.get(vectorIndex);
       final int maxCoefficient = vector.getMaxCoefficient(remainingJoltage);
       for (int coefficient = 0; coefficient <= maxCoefficient; coefficient++) {
         final Vector nextCoefficients = coefficients.withValueAt(vectorIndex, coefficient);
-        final Vector multiple = vector.multiply(coefficient);
-        final Vector nextValue = currentValue.add(multiple);
-        totalCombinations++;
-        if (nextValue.equals(desiredJoltage)) {
-          solutions.add(nextCoefficients);
-          System.out.println("Solution (" + totalCombinations + "): " + nextCoefficients);
-        } else if (!nextValue.greaterThan(desiredJoltage)) {
-          totalCombinations =
-              solveCoefficients(
-                  desiredJoltage,
-                  nextValue,
-                  nextCoefficients,
-                  vectors,
-                  vectorIndex + 1,
-                  solutions,
-                  totalCombinations,
-                  expirationTime);
+        if (minSolution.isEmpty() || minSolution.getAsInt() > nextCoefficients.sum()) {
+          final Vector multiple = vector.multiply(coefficient);
+          final Vector nextValue = currentValue.add(multiple);
+          totalCombinations++;
+          if (nextValue.equals(desiredJoltage)) {
+            solutions.add(nextCoefficients);
+            System.out.println(
+                "Solution ("
+                    + totalCombinations
+                    + "): "
+                    + nextCoefficients
+                    + " Num Presses: "
+                    + nextCoefficients.sum());
+          } else if (!nextValue.greaterThan(desiredJoltage)) {
+            totalCombinations =
+                solveCoefficients(
+                    desiredJoltage,
+                    nextValue,
+                    nextCoefficients,
+                    vectors,
+                    vectorIndex + 1,
+                    solutions,
+                    totalCombinations,
+                    expirationTime);
+          }
         }
       }
     }

@@ -39,9 +39,11 @@ class TogglerSpec extends Specification {
 
         when:
         int min = Toggler.solve(machine)
+        int coeff = Toggler.solveCoefficients(machine)
 
         then:
         min == 12
+        coeff == 12
     }
 
     def "test solving for ones"() {
