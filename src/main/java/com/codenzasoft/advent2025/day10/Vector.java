@@ -13,6 +13,22 @@ public record Vector(List<Integer> values) {
     return new Vector(list);
   }
 
+  public double[] toJama() {
+    final double[] result = new double[values().size()];
+    for (int i = 0; i < values().size(); i++) {
+      result[i] = values().get(i);
+    }
+    return result;
+  }
+
+  public int getBinaryValue() {
+    final StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < values().size(); i++) {
+      builder.append(values().get(i));
+    }
+    return Integer.parseInt(builder.toString(), 2);
+  }
+
   public Vector withValueAt(int index, int value) {
     final List<Integer> newValues = new ArrayList<>(values);
     newValues.set(index, value);

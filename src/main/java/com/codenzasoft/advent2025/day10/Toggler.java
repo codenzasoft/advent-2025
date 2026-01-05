@@ -192,7 +192,7 @@ public class Toggler {
     final List<Vector> vectors =
         machine.buttonList().stream()
             .map(b -> b.getVector(machine))
-            .sorted(Comparator.comparing(Vector::sum))
+            .sorted(Comparator.comparingInt(Vector::sum).reversed())
             .toList();
     final Vector desiredJoltage = machine.joltage().getVector();
     final Vector value = Vector.withAll(machine.joltage().levels().size(), 0);
@@ -252,5 +252,51 @@ public class Toggler {
       }
     }
     return totalCombinations;
+  }
+
+  public static int solveJama(final List<Machine> machines) {
+    return machines.stream().mapToInt(Toggler::solveCoefficients).sum();
+  }
+
+  // solve linear equations
+  public static int solveJama(final Machine machine) {
+    final List<Vector> vectors =
+        machine.buttonList().stream()
+            .map(b -> b.getVector(machine))
+            .sorted(Comparator.comparingInt(Vector::sum).reversed())
+            .toList();
+    final Vector desiredJoltage = machine.joltage().getVector();
+
+    // Coefficients matrix A - vectors become the columns
+    final int numRows = desiredJoltage.values().size();
+    final int numCols = vectors.size();
+    double[][] lhsArray = new double[numRows][numCols];
+    for (int r = 0; r < numRows; r++) {
+      for (int c = 0; c < numCols; c++) {
+        lhsArray[r][c] = vectors.get(c).getValue(r);
+      }
+    }
+    // Constants vector B
+    double[] rhsArray = desiredJoltage.toJama();
+
+    // Create Matrix objects from the arrays
+    Jama.Matrix lhs = new Jama.Matrix(lhsArray);
+    Jama.Matrix rhs = new Jama.Matrix(rhsArray, numRows); // Specify number of rows
+
+    // Solve for the variable vector X (A * X = B)
+    // The solve() method performs the necessary linear algebra operations
+    Jama.Matrix ans = lhs.solve(rhs);
+
+    // Print the results (rounded for cleaner output)
+    final List<Integer> solution = new ArrayList<>();
+    for (int i = 0; i < vectors.size(); i++) {
+      final int c = (int) Math.round(ans.get(i, 0));
+      solution.add(c);
+      System.out.println("c(" + i + ") = " + c);
+    }
+
+    final int min = solution.stream().mapToInt(i -> i).sum();
+    System.out.println("Jama solution: " + min);
+    return min;
   }
 }

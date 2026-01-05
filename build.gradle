@@ -22,7 +22,8 @@ dependencies {
             'org.apache.commons:commons-math3:3.6.1',
             'org.apache.commons:commons-collections4:4.5.0',
             'org.jgrapht:jgrapht-core:1.5.2',
-            'com.github.dpaukov:combinatoricslib3:3.4.0'
+            'com.github.dpaukov:combinatoricslib3:3.4.0',
+            'gov.nist.math:jama:1.0.3'
     )
 
     testRuntimeOnly(
