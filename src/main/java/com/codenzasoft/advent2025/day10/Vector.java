@@ -127,10 +127,13 @@ public record Vector(List<Integer> values) {
     return false;
   }
 
+  public int indexOf(final int value) {
+    return values().indexOf(value);
+  }
+
   public Vector removeColumn(final int column) {
     final List<Integer> newValues = new ArrayList<>(values());
     newValues.remove(column);
     return new Vector(newValues);
   }
-
 }

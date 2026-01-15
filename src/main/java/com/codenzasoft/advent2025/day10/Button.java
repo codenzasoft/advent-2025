@@ -51,5 +51,4 @@ public record Button(int id, int[] buttonOffsets) {
     }
     return false;
   }
-
 }

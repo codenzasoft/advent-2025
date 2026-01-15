@@ -3,7 +3,6 @@ package com.codenzasoft.advent2025.day10;
 import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.util.Combinations;
 import org.paukov.combinatorics3.Generator;
@@ -68,7 +67,7 @@ public class Toggler {
   }
 
   public static int solve(final Machine machine) {
-    final Machine sortedMachine = machine.getSortedJoltage().removeZeroColumns();
+    final Machine sortedMachine = machine.getSortedJoltage().removeZeroJoltages();
     final List<ButtonCombination> seed = sortedMachine.getIndividualCombinations();
     final JoltageLevels value = sortedMachine.newJoltage(0);
     final List<Integer> solvedPresses = new ArrayList<>();
@@ -327,9 +326,7 @@ public class Toggler {
 
   public static int solveMinimumNorm(final Machine machine) {
     final List<Vector> vectors =
-        machine.buttonList().stream()
-            .map(b -> b.getVector(machine))
-            .toList();
+        machine.buttonList().stream().map(b -> b.getVector(machine)).toList();
     final Vector desiredJoltage = machine.joltage().getVector();
 
     // Coefficients matrix A - vectors become the columns
@@ -358,7 +355,7 @@ public class Toggler {
     final Vector v = new Vector(coefficients);
     System.out.println("Rounded Solution: " + v);
     System.out.println("Validated: " + multiply(vectors, v));
-    return (int)Math.round(Math.floor(minNormSolution.getL1Norm()));
+    return (int) Math.round(Math.floor(minNormSolution.getL1Norm()));
   }
 
   public static RealVector solveMinimumNorm(RealMatrix A, RealVector b) {
@@ -372,7 +369,8 @@ public class Toggler {
       // For a unique solution case, it returns the single solution
       System.out.println("System has a unique solution.");
     } else {
-      System.out.println("System has multiple solutions (or no solution), finding minimum norm solution.");
+      System.out.println(
+          "System has multiple solutions (or no solution), finding minimum norm solution.");
     }
 
     RealVector x = solver.solve(b);
@@ -382,9 +380,9 @@ public class Toggler {
   public static Vector multiply(final List<Vector> vectors, final Vector coefficients) {
     final List<Vector> newVectors = new ArrayList<>();
     for (int i = 0; i < vectors.size(); i++) {
-      newVectors.add( vectors.get(i).multiply(coefficients.getValue(i)));
+      newVectors.add(vectors.get(i).multiply(coefficients.getValue(i)));
     }
-    Vector sum = Vector.withAll( newVectors.get(0).values().size(), 0);
+    Vector sum = Vector.withAll(newVectors.get(0).values().size(), 0);
     for (int i = 1; i < newVectors.size(); i++) {
       sum = sum.add(newVectors.get(i));
     }

@@ -28,4 +28,26 @@ public record Matrix(List<Vector> rows) {
   public int getValue(final int row, final int column) {
     return getRow(row).getValue(column);
   }
+
+  public Matrix removeColumn(final int column) {
+    final List<Vector> newRows = new ArrayList<>();
+    for (final Vector row : rows()) {
+      newRows.add(row.removeColumn(column));
+    }
+    return new Matrix(newRows);
+  }
+
+  public Matrix removeRow(final int row) {
+    final List<Vector> newRows = new ArrayList<>(rows());
+    newRows.remove(row);
+    return new Matrix(newRows);
+  }
+
+  public Matrix reorderColumns(final List<Integer> columnIndicies) {
+    final List<Vector> newRows = new ArrayList<>();
+    for (final Vector row : rows()) {
+      newRows.add(row.reorder(columnIndicies));
+    }
+    return new Matrix(newRows);
+  }
 }

@@ -78,16 +78,14 @@ class MachineSpec extends Specification {
 
         when:
         var machine = Machine.parse(input)
-        var next = machine.removeZeroColumns()
+        var next = machine.removeZeroJoltages()
 
         then:
         next.lights().states() == [false, true, true, false]
         next.buttonList().get(0).buttonOffsets() == new int[]{2}
-        next.buttonList().get(1).buttonOffsets() == new int[]{2}
-        next.buttonList().get(2).buttonOffsets() == new int[]{1}
-        next.buttonList().get(3).buttonOffsets() == new int[]{1,2}
-        next.buttonList().get(4).buttonOffsets() == new int[]{0,1}
-        next.buttonList().get(5).buttonOffsets() == new int[]{0}
+        next.buttonList().get(1).buttonOffsets() == new int[]{1}
+        next.buttonList().get(2).buttonOffsets() == new int[]{1,2}
+        next.buttonList().get(3).buttonOffsets() == new int[]{0,1}
         next.joltage().levels() == [3, 4, 7]
     }
 
