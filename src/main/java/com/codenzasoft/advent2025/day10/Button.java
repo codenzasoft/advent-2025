@@ -24,9 +24,17 @@ public record Button(int id, int[] buttonOffsets) {
     return false;
   }
 
+  public int numberOfOffsets() {
+    return buttonOffsets.length;
+  }
+
   public Vector getVector(final Machine machine) {
+    return getVector(machine.joltage().levels().size());
+  }
+
+  public Vector getVector(final int numColumns) {
     final List<Integer> values = new ArrayList<>();
-    for (int i = 0; i < machine.joltage().levels().size(); i++) {
+    for (int i = 0; i < numColumns; i++) {
       values.add(0);
     }
     for (int buttonOffset : buttonOffsets) {
@@ -34,4 +42,14 @@ public record Button(int id, int[] buttonOffsets) {
     }
     return new Vector(values);
   }
+
+  public boolean containsAnyIndex(final List<Integer> indicies) {
+    for (int buttonOffset : buttonOffsets) {
+      if (indicies.contains(buttonOffset)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 }

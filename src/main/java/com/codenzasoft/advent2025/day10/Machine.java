@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2025.day10;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public record Machine(Lights lights, List<Button> buttonList, JoltageLevels joltage) {
@@ -38,5 +39,46 @@ public record Machine(Lights lights, List<Button> buttonList, JoltageLevels jolt
       vectors.add(button.getVector(this));
     }
     return new Matrix(vectors);
+  }
+
+  public Machine getSortedJoltage() {
+    final Vector originalJoltage = new Vector(joltage().levels());
+    final List<Integer> sortedIndicies = originalJoltage.getSortedIndicies();
+    final JoltageLevels sortedJoltage = originalJoltage.reorder(sortedIndicies).toJoltageLevels();
+    final List<Button> sortedButtons = new ArrayList<>();
+    for (final Button button : buttonList()) {
+      sortedButtons.add(button.getVector(this).reorder(sortedIndicies).toButton(button.id()));
+    }
+    return new Machine(lights(), sortedButtons, sortedJoltage);
+  }
+
+  public Machine removeZeroColumns() {
+    final List<Integer> zeroIndexes = new ArrayList<>();
+    final List<Integer> newJoltageLevels = new ArrayList<>();
+    for (int index = 0; index < joltage().levels().size(); index++) {
+      if (joltage().levels().get(index) == 0) {
+        zeroIndexes.add(index);
+      } else {
+        newJoltageLevels.add(joltage().levels().get(index));
+      }
+    }
+    if (zeroIndexes.isEmpty()) {
+      return this;
+    } else {
+      final JoltageLevels newJoltage = new JoltageLevels(newJoltageLevels);
+      final List<Button> newButtons = new ArrayList<>();
+      for (final Button button : buttonList()) {
+        if (!button.containsAnyIndex(zeroIndexes)) {
+          Vector vector = button.getVector(this);
+          int removalOffset = 0;
+          for (int index : zeroIndexes) {
+            vector = vector.removeColumn(index - removalOffset);
+            removalOffset++;
+          }
+          newButtons.add(vector.toButton(button.id()));
+        }
+      }
+      return new Machine(lights(), newButtons, newJoltage);
+    }
   }
 }

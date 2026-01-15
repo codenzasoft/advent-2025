@@ -88,4 +88,14 @@ public record JoltageLevels(List<Integer> levels) {
   public Vector getVector() {
     return new Vector(levels());
   }
+
+  public List<Integer> getIndiciesOf(final int value) {
+    final List<Integer> indices = new ArrayList<>();
+    for (int i = 0; i < levels().size(); i++) {
+      if (levels().get(i) == value) {
+        indices.add(i);
+      }
+    }
+    return indices;
+  }
 }

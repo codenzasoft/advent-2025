@@ -33,6 +33,43 @@ class TogglerSpec extends Specification {
         coeff == 10
     }
 
+//    def "test solving a machine's joltage using Jama"() {
+//        setup:
+//        var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
+//
+//        when:
+//        int jama = Toggler.solveJama(machine)
+//
+//        then:
+//        jama == 10
+//    }
+
+    def "test solving a machine's joltage using min norm"() {
+        setup:
+        var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
+
+        when:
+        int jama = Toggler.solveMinimumNorm(machine)
+
+        then:
+        jama == 10
+    }
+
+    //
+    // 0, 0, 0, 1
+    // 0, 1, 0, 1
+    // 0, 0, 1, 0
+    // 0, 0, 1, 1
+    // 1, 0, 1, 0
+    // 1, 1, 0, 0
+    //
+    // 3, 5, 4, 7
+
+    // e + f = 3
+    // b + f = 5
+    // c + d + e = 4
+    // a + b + d = 7
+
     def "test solving another machine's joltage"() {
         setup:
         var machine = Machine.parse("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}")

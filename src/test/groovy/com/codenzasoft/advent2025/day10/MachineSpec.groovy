@@ -72,4 +72,23 @@ class MachineSpec extends Specification {
         return count
     }
 
+    def "test removing zero joltage columns parsing"() {
+        setup:
+        var input = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,0,4,7}"
+
+        when:
+        var machine = Machine.parse(input)
+        var next = machine.removeZeroColumns()
+
+        then:
+        next.lights().states() == [false, true, true, false]
+        next.buttonList().get(0).buttonOffsets() == new int[]{2}
+        next.buttonList().get(1).buttonOffsets() == new int[]{2}
+        next.buttonList().get(2).buttonOffsets() == new int[]{1}
+        next.buttonList().get(3).buttonOffsets() == new int[]{1,2}
+        next.buttonList().get(4).buttonOffsets() == new int[]{0,1}
+        next.buttonList().get(5).buttonOffsets() == new int[]{0}
+        next.joltage().levels() == [3, 4, 7]
+    }
+
 }

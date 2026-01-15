@@ -1,7 +1,10 @@
 package com.codenzasoft.advent2025.day10;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public record Vector(List<Integer> values) {
 
@@ -19,6 +22,22 @@ public record Vector(List<Integer> values) {
       result[i] = values().get(i);
     }
     return result;
+  }
+
+  public JoltageLevels toJoltageLevels() {
+    return new JoltageLevels(values());
+  }
+
+  public Button toButton(int id) {
+    final int[] buttons = new int[sum()];
+    int index = 0;
+    for (int i = 0; i < values().size(); i++) {
+      if (values().get(i) != 0) {
+        buttons[index] = i;
+        index++;
+      }
+    }
+    return new Button(id, buttons);
   }
 
   public int getBinaryValue() {
@@ -47,6 +66,21 @@ public record Vector(List<Integer> values) {
     final List<Integer> newValues = new ArrayList<>();
     for (int i = 0; i < values.size(); i++) {
       newValues.add(values.get(i) * value);
+    }
+    return new Vector(newValues);
+  }
+
+  public List<Integer> getSortedIndicies() {
+    return IntStream.range(0, values.size())
+        .boxed()
+        .sorted(Comparator.comparingInt(values::get))
+        .collect(Collectors.toList());
+  }
+
+  public Vector reorder(final List<Integer> indicies) {
+    final List<Integer> newValues = new ArrayList<>();
+    for (final Integer index : indicies) {
+      newValues.add(values.get(index));
     }
     return new Vector(newValues);
   }
@@ -85,4 +119,18 @@ public record Vector(List<Integer> values) {
     }
     return false;
   }
+
+  public boolean contains(final int value) {
+    if (values().contains(value)) {
+      return true;
+    }
+    return false;
+  }
+
+  public Vector removeColumn(final int column) {
+    final List<Integer> newValues = new ArrayList<>(values());
+    newValues.remove(column);
+    return new Vector(newValues);
+  }
+
 }

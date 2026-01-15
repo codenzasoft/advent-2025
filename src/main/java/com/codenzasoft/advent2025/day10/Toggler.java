@@ -3,6 +3,8 @@ package com.codenzasoft.advent2025.day10;
 import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.util.Combinations;
 import org.paukov.combinatorics3.Generator;
 
@@ -12,7 +14,7 @@ public class Toggler {
     final List<String> lines = PuzzleHelper.getInputLines("input-day-10.txt");
     final List<Machine> machines = lines.stream().map(Machine::parse).toList();
     System.out.println("The sum for part 1 is: " + part1(machines));
-    System.out.println("The sum for part 2 is: " + solveCoefficients(machines));
+    System.out.println("The sum for part 2 is: " + solveInParts(machines));
   }
 
   public static int part1(final List<Machine> machines) {
@@ -43,7 +45,14 @@ public class Toggler {
   }
 
   public static int part2(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::solve).sum();
+    int sum = 0;
+    int count = 0;
+    for (final Machine machine : machines) {
+      sum += solve(machine);
+      count++;
+      System.out.println("Solved " + count + " of " + machines.size());
+    }
+    return sum;
   }
 
   public static int solveForValue(
@@ -59,12 +68,13 @@ public class Toggler {
   }
 
   public static int solve(final Machine machine) {
-    final List<ButtonCombination> seed = machine.getIndividualCombinations();
-    final JoltageLevels value = machine.newJoltage(0);
+    final Machine sortedMachine = machine.getSortedJoltage().removeZeroColumns();
+    final List<ButtonCombination> seed = sortedMachine.getIndividualCombinations();
+    final JoltageLevels value = sortedMachine.newJoltage(0);
     final List<Integer> solvedPresses = new ArrayList<>();
     int total =
         solve(
-            machine.joltage(),
+            sortedMachine.joltage(),
             seed,
             0,
             value,
@@ -79,7 +89,15 @@ public class Toggler {
   }
 
   public static int solveInParts(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::solveInParts).sum();
+    int sum = 0;
+    int count = 0;
+    for (final Machine machine : machines) {
+      sum += solveInParts(machine);
+      count++;
+      System.out.println("Solved " + count + " of " + machines.size());
+    }
+    return sum;
+    // return machines.stream().mapToInt(Toggler::solveInParts).sum();
   }
 
   public static int solveInParts(final Machine machine) {
@@ -121,6 +139,7 @@ public class Toggler {
         final List<Button> allowable =
             combination.buttons().stream()
                 .filter(button -> !solution.isExceededBy(levels.press(button, 1)))
+                .sorted(Comparator.comparingInt(Button::numberOfOffsets).reversed())
                 .toList();
         for (List<Button> buttonList : Generator.combination(allowable).multi(remainingLevel)) {
           if (expirationTime.isExpired()) {
@@ -192,7 +211,7 @@ public class Toggler {
     final List<Vector> vectors =
         machine.buttonList().stream()
             .map(b -> b.getVector(machine))
-            .sorted(Comparator.comparingInt(Vector::sum).reversed())
+            .sorted(Comparator.comparingInt(Vector::sum))
             .toList();
     final Vector desiredJoltage = machine.joltage().getVector();
     final Vector value = Vector.withAll(machine.joltage().levels().size(), 0);
@@ -221,7 +240,7 @@ public class Toggler {
       final Vector remainingJoltage = desiredJoltage.subtract(currentValue);
       final Vector vector = vectors.get(vectorIndex);
       final int maxCoefficient = vector.getMaxCoefficient(remainingJoltage);
-      for (int coefficient = 0; coefficient <= maxCoefficient; coefficient++) {
+      for (int coefficient = maxCoefficient; coefficient >= 0; coefficient--) {
         final Vector nextCoefficients = coefficients.withValueAt(vectorIndex, coefficient);
         if (minSolution.isEmpty() || minSolution.getAsInt() > nextCoefficients.sum()) {
           final Vector multiple = vector.multiply(coefficient);
@@ -236,7 +255,9 @@ public class Toggler {
                     + nextCoefficients
                     + " Num Presses: "
                     + nextCoefficients.sum());
-          } else if (!nextValue.greaterThan(desiredJoltage)) {
+          } else if (nextValue.greaterThan(desiredJoltage)) {
+            break;
+          } else {
             totalCombinations =
                 solveCoefficients(
                     desiredJoltage,
@@ -298,5 +319,75 @@ public class Toggler {
     final int min = solution.stream().mapToInt(i -> i).sum();
     System.out.println("Jama solution: " + min);
     return min;
+  }
+
+  public static int solveMinimumNorm(final List<Machine> machines) {
+    return machines.stream().mapToInt(Toggler::solveMinimumNorm).sum();
+  }
+
+  public static int solveMinimumNorm(final Machine machine) {
+    final List<Vector> vectors =
+        machine.buttonList().stream()
+            .map(b -> b.getVector(machine))
+            .toList();
+    final Vector desiredJoltage = machine.joltage().getVector();
+
+    // Coefficients matrix A - vectors become the columns
+    final int numRows = desiredJoltage.values().size();
+    final int numCols = vectors.size();
+    double[][] lhsArray = new double[numRows][numCols];
+    for (int r = 0; r < numRows; r++) {
+      for (int c = 0; c < numCols; c++) {
+        lhsArray[r][c] = vectors.get(c).getValue(r);
+      }
+    }
+    // Constants vector B
+    double[] rhsArray = desiredJoltage.toJama();
+
+    // Create Matrix objects from the arrays
+    RealMatrix a = new Array2DRowRealMatrix(lhsArray);
+    RealVector b = new Array2DRowRealMatrix(rhsArray).getColumnVector(0);
+
+    RealVector minNormSolution = solveMinimumNorm(a, b);
+    System.out.println("Minimum norm solution: " + minNormSolution);
+    System.out.println("Norm: " + minNormSolution.getL1Norm());
+    final List<Integer> coefficients = new ArrayList<>();
+    for (double v : minNormSolution.toArray()) {
+      coefficients.add((int) Math.round(v));
+    }
+    final Vector v = new Vector(coefficients);
+    System.out.println("Rounded Solution: " + v);
+    System.out.println("Validated: " + multiply(vectors, v));
+    return (int)Math.round(Math.floor(minNormSolution.getL1Norm()));
+  }
+
+  public static RealVector solveMinimumNorm(RealMatrix A, RealVector b) {
+    // Use Singular Value Decomposition (SVD) for handling underdetermined systems
+    DecompositionSolver solver = new SingularValueDecomposition(A).getSolver();
+
+    // The solve method for SVD decomposition automatically computes
+    // the minimum norm least-squares solution for underdetermined systems.
+    // It's typically more robust than using the direct pseudoinverse calculation.
+    if (solver.isNonSingular()) {
+      // For a unique solution case, it returns the single solution
+      System.out.println("System has a unique solution.");
+    } else {
+      System.out.println("System has multiple solutions (or no solution), finding minimum norm solution.");
+    }
+
+    RealVector x = solver.solve(b);
+    return x;
+  }
+
+  public static Vector multiply(final List<Vector> vectors, final Vector coefficients) {
+    final List<Vector> newVectors = new ArrayList<>();
+    for (int i = 0; i < vectors.size(); i++) {
+      newVectors.add( vectors.get(i).multiply(coefficients.getValue(i)));
+    }
+    Vector sum = Vector.withAll( newVectors.get(0).values().size(), 0);
+    for (int i = 1; i < newVectors.size(); i++) {
+      sum = sum.add(newVectors.get(i));
+    }
+    return sum;
   }
 }
