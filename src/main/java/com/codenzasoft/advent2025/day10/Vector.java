@@ -120,6 +120,10 @@ public record Vector(List<Integer> values) {
     return false;
   }
 
+  public Vector duplicate() {
+    return new Vector(values());
+  }
+
   public boolean contains(final int value) {
     if (values().contains(value)) {
       return true;

@@ -37,6 +37,16 @@ public record Matrix(List<Vector> rows) {
     return new Matrix(newRows);
   }
 
+  public List<Vector> getRowsWithNonZeroColumn(final int column) {
+    final List<Vector> result = new ArrayList<>();
+    for (Vector row : rows()) {
+      if (row.getValue(column) != 0) {
+        result.add(row);
+      }
+    }
+    return result;
+  }
+
   public Matrix removeRow(final int row) {
     final List<Vector> newRows = new ArrayList<>(rows());
     newRows.remove(row);

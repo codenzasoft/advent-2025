@@ -122,8 +122,11 @@ class TogglerSpec extends Specification {
 
         when:
         int result = Toggler.part2(machines)
+        int parts = Toggler.solveInParts(machines)
 
         then:
         result == 33
+//        SOLVING IN PARTS IS NOT WORKING
+//        parts == 33
     }
 }

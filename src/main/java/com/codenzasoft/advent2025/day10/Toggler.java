@@ -13,7 +13,7 @@ public class Toggler {
     final List<String> lines = PuzzleHelper.getInputLines("input-day-10.txt");
     final List<Machine> machines = lines.stream().map(Machine::parse).toList();
     System.out.println("The sum for part 1 is: " + part1(machines));
-    System.out.println("The sum for part 2 is: " + solveInParts(machines));
+    System.out.println("The sum for part 2 is: " + part2(machines));
   }
 
   public static int part1(final List<Machine> machines) {
@@ -57,24 +57,33 @@ public class Toggler {
   public static int solveForValue(
       final Machine machine, final JoltageLevels solution, final ExpirationTime expirationTime) {
     System.out.println("Solving for value: " + solution);
-    final List<ButtonCombination> seed = machine.getIndividualCombinations();
     JoltageLevels zero = machine.newJoltage(0);
     final List<Integer> solvedPresses = new ArrayList<>();
-    int total = solve(solution, seed, 0, zero, 0, solvedPresses, 0, List.of(), expirationTime);
+    int total =
+        solve(
+            solution.getVector(),
+            machine.getMatrix(),
+            0,
+            zero.getVector(),
+            0,
+            solvedPresses,
+            0,
+            List.of(),
+            expirationTime);
     final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
-    System.out.println("Value (" + seed + ") combinations: " + total + " Min: " + min);
+    System.out.println(
+        "Value (" + solution.getVector() + ") combinations: " + total + " Min: " + min);
     return min;
   }
 
   public static int solve(final Machine machine) {
-    final Machine sortedMachine = machine.getSortedJoltage().removeZeroJoltages();
-    final List<ButtonCombination> seed = sortedMachine.getIndividualCombinations();
-    final JoltageLevels value = sortedMachine.newJoltage(0);
+    final Machine sortedMachine = machine.removeZeroJoltages();
+    final Vector value = Vector.withAll(sortedMachine.joltage().levels().size(), 0);
     final List<Integer> solvedPresses = new ArrayList<>();
     int total =
         solve(
-            sortedMachine.joltage(),
-            seed,
+            sortedMachine.joltage().getVector(),
+            sortedMachine.getMatrix(),
             0,
             value,
             0,
@@ -103,7 +112,7 @@ public class Toggler {
     final ExpirationTime expirationTime = ExpirationTime.after(TimeUnit.SECONDS, 10);
     final JoltageLevels minJoltage = machine.newJoltage(machine.joltage().getMinValue());
     final int part1 = solveForValue(machine, minJoltage, expirationTime);
-    if (part1 < 0) {
+    if (part1 <= 0) {
       System.out.println("UNSOLVED!");
       return -1;
     } else {
@@ -118,50 +127,50 @@ public class Toggler {
   }
 
   public static int solve(
-      final JoltageLevels solution,
-      final List<ButtonCombination> combinations,
-      final int combinationIndex,
-      final JoltageLevels levels,
+      final Vector solution,
+      final Matrix matrix,
+      final int columnIndex,
+      final Vector levels,
       final int presses,
       final List<Integer> solvedPresses,
       int total,
-      List<List<Button>> currentCombination,
+      List<List<Vector>> currentCombination,
       final ExpirationTime expirationTime) {
-    if (combinationIndex < combinations.size()) {
+    if (columnIndex < matrix.getColumnCount()) {
       final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(Integer.MAX_VALUE);
-      final ButtonCombination combination = combinations.get(combinationIndex);
-      final int targetLevel = solution.levels().get(combinationIndex);
-      final int currentLevel = levels.levels().get(combinationIndex);
+      final List<Vector> rows = matrix.getRowsWithNonZeroColumn(columnIndex);
+      final int targetLevel = solution.getValue(columnIndex);
+      final int currentLevel = levels.getValue(columnIndex);
       final int remainingLevel = targetLevel - currentLevel;
       if (presses + remainingLevel < min) {
-        // exclude any buttons that will exceed the expected level
-        final List<Button> allowable =
-            combination.buttons().stream()
-                .filter(button -> !solution.isExceededBy(levels.press(button, 1)))
-                .sorted(Comparator.comparingInt(Button::numberOfOffsets).reversed())
+        // exclude any rows that will exceed the expected level
+        final List<Vector> allowable =
+            rows.stream()
+                .filter(row -> !levels.add(row).greaterThan(solution))
+                .sorted(Comparator.comparingInt(Vector::sum).reversed())
                 .toList();
-        for (List<Button> buttonList : Generator.combination(allowable).multi(remainingLevel)) {
+        for (List<Vector> buttonList : Generator.combination(allowable).multi(remainingLevel)) {
           if (expirationTime.isExpired()) {
             return -1;
           }
           total++;
-          JoltageLevels nextLevel = levels.duplicate();
+          Vector nextLevel = levels.duplicate();
           int nextPresses = presses;
-          final List<List<Button>> curr = new ArrayList<>(currentCombination);
+          final List<List<Vector>> curr = new ArrayList<>(currentCombination);
           curr.add(buttonList);
-          for (final Button button : buttonList) {
-            nextLevel = nextLevel.press(button, 1);
+          for (final Vector v : buttonList) {
+            nextLevel = nextLevel.add(v);
             nextPresses++;
           }
           if (solution.equals(nextLevel)) {
             solvedPresses.add(nextPresses);
             System.out.println("Presses: " + nextPresses + " Combination: " + curr);
-          } else if (!solution.isExceededBy(nextLevel) && combinationIndex < combinations.size()) {
+          } else if (solution.greaterThan(nextLevel) && columnIndex < matrix.getColumnCount()) {
             total =
                 solve(
                     solution,
-                    combinations,
-                    combinationIndex + 1,
+                    matrix,
+                    columnIndex + 1,
                     nextLevel,
                     nextPresses,
                     solvedPresses,
