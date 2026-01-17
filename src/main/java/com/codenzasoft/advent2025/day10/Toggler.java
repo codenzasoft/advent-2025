@@ -69,7 +69,6 @@ public class Toggler {
             matrix,
             0,
             zero.getVector(),
-            0,
             solutions,
             0,
             coefficients,
@@ -93,7 +92,6 @@ public class Toggler {
             matrix,
             0,
             value,
-            0,
             solutions,
             0,
             coefficients,
@@ -133,24 +131,35 @@ public class Toggler {
     }
   }
 
+  /**
+   *
+   * @param solution A {@link Vector} defining the sum of rows to solve/search for.
+   * @param matrix A {@link Matrix} of rows that can be summed to solve the total.
+   * @param currentColumn The index of the column to solve for.
+   * @param currentTotal A {@link Vector} of the current sum of rows.
+   * @param solvedCoefficients
+   * @param total
+   * @param currentCoefficients
+   * @param expirationTime
+   * @return
+   */
   public static int solve(
       final Vector solution,
       final Matrix matrix,
       final int currentColumn,
       final Vector currentTotal,
-      final int presses,
       final List<Vector> solvedCoefficients,
       int total,
-      Vector coefficients,
+      Vector currentCoefficients,
       final ExpirationTime expirationTime) {
     if (currentColumn < matrix.getColumnCount()) {
       final int min =
           solvedCoefficients.stream().mapToInt(Vector::sum).min().orElse(Integer.MAX_VALUE);
       final List<Vector> rows = matrix.getRowsWithNonZeroColumn(currentColumn);
-      final int targetLevel = solution.getValue(currentColumn);
+      final int columnTarget = solution.getValue(currentColumn);
       final int currentLevel = currentTotal.getValue(currentColumn);
-      final int remainingLevel = targetLevel - currentLevel;
-      if (presses + remainingLevel < min) {
+      final int remainingLevel = columnTarget - currentLevel;
+      if (currentCoefficients.sum() + remainingLevel < min) {
         // exclude any rows that will exceed the solution level
         final List<Vector> allowable =
             rows.stream()
@@ -166,7 +175,7 @@ public class Toggler {
           final Map<Vector, Long> occurrences =
               vectorCombination.stream()
                   .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-          final Vector nextCoefficients = coefficients.add(matrix.coefficientsFrom(occurrences));
+          final Vector nextCoefficients = currentCoefficients.add(matrix.coefficientsFrom(occurrences));
           final Vector nextTotal = matrix.getSum(nextCoefficients);
           final int nextPresses = nextTotal.sum();
           if (solution.equals(nextTotal)) {
@@ -179,7 +188,6 @@ public class Toggler {
                     matrix,
                     currentColumn + 1,
                     nextTotal,
-                    nextPresses,
                     solvedCoefficients,
                     total,
                     nextCoefficients,
