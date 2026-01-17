@@ -49,7 +49,7 @@ public class Toggler {
     int sum = 0;
     int count = 0;
     for (final Machine machine : machines) {
-      sum += solve(machine);
+      sum += solve(machine).map(Vector::sum).orElse(0);
       count++;
       System.out.println("Solved " + count + " of " + machines.size());
     }
@@ -60,7 +60,7 @@ public class Toggler {
       final Machine machine, final JoltageLevels solution, final ExpirationTime expirationTime) {
     System.out.println("Solving for value: " + solution);
     JoltageLevels zero = machine.newJoltage(0);
-    final List<Vector> solvedPresses = new ArrayList<>();
+    final List<Vector> solutions = new ArrayList<>();
     final Matrix matrix = machine.getMatrix();
     final Vector coefficients = matrix.coefficientsWith(0);
     int total =
@@ -70,20 +70,20 @@ public class Toggler {
             0,
             zero.getVector(),
             0,
-            solvedPresses,
+            solutions,
             0,
             coefficients,
             expirationTime);
-    final int min = solvedPresses.stream().mapToInt(Vector::sum).min().orElse(0);
+    final int min = solutions.stream().mapToInt(Vector::sum).min().orElse(0);
     System.out.println(
         "Value (" + solution.getVector() + ") combinations: " + total + " Min: " + min);
     return min;
   }
 
-  public static int solve(final Machine machine) {
+  public static Optional<Vector> solve(final Machine machine) {
     final Machine sortedMachine = machine.getSortedJoltage().removeZeroJoltages();
     final Vector value = Vector.withAll(sortedMachine.joltage().levels().size(), 0);
-    final List<Vector> solvedPresses = new ArrayList<>();
+    final List<Vector> solutions = new ArrayList<>();
     final Matrix matrix = sortedMachine.getMatrix();
     final Vector coefficients = matrix.coefficientsWith(0);
 
@@ -94,11 +94,11 @@ public class Toggler {
             0,
             value,
             0,
-            solvedPresses,
+            solutions,
             0,
             coefficients,
             ExpirationTime.never());
-    final int min = solvedPresses.stream().mapToInt(Vector::sum).min().orElse(0);
+    final Optional<Vector> min = solutions.stream().min(Comparator.comparing(Vector::sum));
     System.out.println("Total combinations: " + total + " Min: " + min);
     return min;
   }
@@ -192,7 +192,7 @@ public class Toggler {
   }
 
   public static int bfs(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::solve).sum();
+    return machines.stream().mapToInt(Toggler::bfs).sum();
   }
 
   public static int bfs(final Machine machine) {

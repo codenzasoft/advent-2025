@@ -21,7 +21,7 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
 
         when:
-        int min = Toggler.solve(machine)
+        int min = Toggler.solve(machine).map(Vector::sum).orElse(0)
         int parts = Toggler.solveInParts(machine)
         int bfs = Toggler.bfs(machine)
         int coeff = Toggler.solveCoefficients(machine)
@@ -75,7 +75,7 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}")
 
         when:
-        int min = Toggler.solve(machine)
+        int min = Toggler.solve(machine).map(Vector::sum).orElse(0)
         int coeff = Toggler.solveCoefficients(machine)
 
         then:
@@ -88,7 +88,7 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {1,1,1,1}")
 
         when:
-        int r0 = Toggler.solve(machine)
+        int r0 = Toggler.solve(machine).map(Vector::sum).orElse(0)
 
         then:
         r0 == 2
@@ -101,9 +101,9 @@ class TogglerSpec extends Specification {
         var m2 = Machine.parse("[.##.] (3) (1,3) (2) (0,2) {0,2,0,3}")
 
         when:
-        int r0 = Toggler.solve(machine)
-        int r1 = Toggler.solve(m1)
-        int r2 = Toggler.solve(m2)
+        int r0 = Toggler.solve(machine).map(Vector::sum).orElse(0)
+        int r1 = Toggler.solve(m1).map(Vector::sum).orElse(0)
+        int r2 = Toggler.solve(m2).map(Vector::sum).orElse(0)
 
         then:
         r0 == 10
