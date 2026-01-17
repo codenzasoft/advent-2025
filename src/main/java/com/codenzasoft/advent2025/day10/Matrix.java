@@ -2,6 +2,7 @@ package com.codenzasoft.advent2025.day10;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public record Matrix(List<Vector> rows) {
 
@@ -59,5 +60,25 @@ public record Matrix(List<Vector> rows) {
       newRows.add(row.reorder(columnIndicies));
     }
     return new Matrix(newRows);
+  }
+
+  public Vector coefficientsWith(final int value) {
+    return Vector.withAll(getRowCount(), value);
+  }
+
+  public Vector coefficientsFrom(final Map<Vector, Long> occurrences) {
+    final List<Integer> coefficients = new ArrayList<>();
+    for (final Vector row : rows()) {
+      coefficients.add(occurrences.getOrDefault(row, 0L).intValue());
+    }
+    return new Vector(coefficients);
+  }
+
+  public Vector getSum(final Vector coefficients) {
+    Vector sum = Vector.withAll(getColumnCount(), 0);
+    for (int r = 0; r < rows().size(); r++) {
+      sum = sum.add(getRow(r).multiply(coefficients.getValue(r)));
+    }
+    return sum;
   }
 }

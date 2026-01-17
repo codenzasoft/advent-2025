@@ -3,6 +3,8 @@ package com.codenzasoft.advent2025.day10;
 import com.codenzasoft.advent2025.PuzzleHelper;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.math3.linear.*;
 import org.apache.commons.math3.util.Combinations;
 import org.paukov.combinatorics3.Generator;
@@ -58,40 +60,45 @@ public class Toggler {
       final Machine machine, final JoltageLevels solution, final ExpirationTime expirationTime) {
     System.out.println("Solving for value: " + solution);
     JoltageLevels zero = machine.newJoltage(0);
-    final List<Integer> solvedPresses = new ArrayList<>();
+    final List<Vector> solvedPresses = new ArrayList<>();
+    final Matrix matrix = machine.getMatrix();
+    final Vector coefficients = matrix.coefficientsWith(0);
     int total =
         solve(
             solution.getVector(),
-            machine.getMatrix(),
+            matrix,
             0,
             zero.getVector(),
             0,
             solvedPresses,
             0,
-            List.of(),
+            coefficients,
             expirationTime);
-    final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
+    final int min = solvedPresses.stream().mapToInt(Vector::sum).min().orElse(0);
     System.out.println(
         "Value (" + solution.getVector() + ") combinations: " + total + " Min: " + min);
     return min;
   }
 
   public static int solve(final Machine machine) {
-    final Machine sortedMachine = machine.removeZeroJoltages();
+    final Machine sortedMachine = machine.getSortedJoltage().removeZeroJoltages();
     final Vector value = Vector.withAll(sortedMachine.joltage().levels().size(), 0);
-    final List<Integer> solvedPresses = new ArrayList<>();
+    final List<Vector> solvedPresses = new ArrayList<>();
+    final Matrix matrix = sortedMachine.getMatrix();
+    final Vector coefficients = matrix.coefficientsWith(0);
+
     int total =
         solve(
             sortedMachine.joltage().getVector(),
-            sortedMachine.getMatrix(),
+            matrix,
             0,
             value,
             0,
             solvedPresses,
             0,
-            List.of(),
+            coefficients,
             ExpirationTime.never());
-    final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(0);
+    final int min = solvedPresses.stream().mapToInt(Vector::sum).min().orElse(0);
     System.out.println("Total combinations: " + total + " Min: " + min);
     return min;
   }
@@ -129,53 +136,53 @@ public class Toggler {
   public static int solve(
       final Vector solution,
       final Matrix matrix,
-      final int columnIndex,
-      final Vector levels,
+      final int currentColumn,
+      final Vector currentTotal,
       final int presses,
-      final List<Integer> solvedPresses,
+      final List<Vector> solvedCoefficients,
       int total,
-      List<List<Vector>> currentCombination,
+      Vector coefficients,
       final ExpirationTime expirationTime) {
-    if (columnIndex < matrix.getColumnCount()) {
-      final int min = solvedPresses.stream().mapToInt(i -> i).min().orElse(Integer.MAX_VALUE);
-      final List<Vector> rows = matrix.getRowsWithNonZeroColumn(columnIndex);
-      final int targetLevel = solution.getValue(columnIndex);
-      final int currentLevel = levels.getValue(columnIndex);
+    if (currentColumn < matrix.getColumnCount()) {
+      final int min =
+          solvedCoefficients.stream().mapToInt(Vector::sum).min().orElse(Integer.MAX_VALUE);
+      final List<Vector> rows = matrix.getRowsWithNonZeroColumn(currentColumn);
+      final int targetLevel = solution.getValue(currentColumn);
+      final int currentLevel = currentTotal.getValue(currentColumn);
       final int remainingLevel = targetLevel - currentLevel;
       if (presses + remainingLevel < min) {
-        // exclude any rows that will exceed the expected level
+        // exclude any rows that will exceed the solution level
         final List<Vector> allowable =
             rows.stream()
-                .filter(row -> !levels.add(row).greaterThan(solution))
+                .filter(row -> !currentTotal.add(row).greaterThan(solution))
                 .sorted(Comparator.comparingInt(Vector::sum).reversed())
                 .toList();
-        for (List<Vector> buttonList : Generator.combination(allowable).multi(remainingLevel)) {
+        for (List<Vector> vectorCombination :
+            Generator.combination(allowable).multi(remainingLevel)) {
           if (expirationTime.isExpired()) {
             return -1;
           }
           total++;
-          Vector nextLevel = levels.duplicate();
-          int nextPresses = presses;
-          final List<List<Vector>> curr = new ArrayList<>(currentCombination);
-          curr.add(buttonList);
-          for (final Vector v : buttonList) {
-            nextLevel = nextLevel.add(v);
-            nextPresses++;
-          }
-          if (solution.equals(nextLevel)) {
-            solvedPresses.add(nextPresses);
-            System.out.println("Presses: " + nextPresses + " Combination: " + curr);
-          } else if (solution.greaterThan(nextLevel) && columnIndex < matrix.getColumnCount()) {
+          final Map<Vector, Long> occurrences =
+              vectorCombination.stream()
+                  .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+          final Vector nextCoefficients = coefficients.add(matrix.coefficientsFrom(occurrences));
+          final Vector nextTotal = matrix.getSum(nextCoefficients);
+          final int nextPresses = nextTotal.sum();
+          if (solution.equals(nextTotal)) {
+            solvedCoefficients.add(nextCoefficients);
+            System.out.println("Presses: " + nextPresses + " Coefficients: " + nextCoefficients);
+          } else if (solution.greaterThan(nextTotal) && currentColumn < matrix.getColumnCount()) {
             total =
                 solve(
                     solution,
                     matrix,
-                    columnIndex + 1,
-                    nextLevel,
+                    currentColumn + 1,
+                    nextTotal,
                     nextPresses,
-                    solvedPresses,
+                    solvedCoefficients,
                     total,
-                    curr,
+                    nextCoefficients,
                     expirationTime);
           }
         }
