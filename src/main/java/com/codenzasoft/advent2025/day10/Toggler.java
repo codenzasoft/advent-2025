@@ -61,6 +61,7 @@ public class Toggler {
     System.out.println("Solving for value: " + solution);
     JoltageLevels zero = machine.newJoltage(0);
     final List<Vector> solutions = new ArrayList<>();
+    final List<Vector> closest = new ArrayList<>();
     final Matrix matrix = machine.getMatrix();
     final Vector coefficients = matrix.coefficientsWith(0);
     int total =
@@ -69,9 +70,10 @@ public class Toggler {
             matrix,
             0,
             zero.getVector(),
-            solutions,
-            0,
             coefficients,
+            solutions,
+            closest,
+            0,
             expirationTime);
     final int min = solutions.stream().mapToInt(Vector::sum).min().orElse(0);
     System.out.println(
@@ -83,6 +85,7 @@ public class Toggler {
     final Machine sortedMachine = machine.getSortedJoltage().removeZeroJoltages();
     final Vector value = Vector.withAll(sortedMachine.joltage().levels().size(), 0);
     final List<Vector> solutions = new ArrayList<>();
+    final List<Vector> closest = new ArrayList<>();
     final Matrix matrix = sortedMachine.getMatrix();
     final Vector coefficients = matrix.coefficientsWith(0);
 
@@ -92,9 +95,10 @@ public class Toggler {
             matrix,
             0,
             value,
-            solutions,
-            0,
             coefficients,
+            solutions,
+            closest,
+            0,
             ExpirationTime.never());
     final Optional<Vector> min = solutions.stream().min(Comparator.comparing(Vector::sum));
     System.out.println("Total combinations: " + total + " Min: " + min);
@@ -132,38 +136,47 @@ public class Toggler {
   }
 
   /**
+   * Searches for a minimum solution to achieve the desiredTotal, by adding any combination of rows
+   * in the provided matrix. Solutions are added to the provided solutions collection as a {@link
+   * Vector} of coefficients describing the number of each row in the matrix used to produce the
+   * desiredTotal.
    *
-   * @param solution A {@link Vector} defining the sum of rows to solve/search for.
-   * @param matrix A {@link Matrix} of rows that can be summed to solve the total.
-   * @param currentColumn The index of the column to solve for.
-   * @param currentTotal A {@link Vector} of the current sum of rows.
-   * @param solvedCoefficients
-   * @param total
-   * @param currentCoefficients
-   * @param expirationTime
-   * @return
+   * <p>The algorithm works by solving each column. Once a solution is found, it is used to reduce
+   * the search space and discard any solutions that require more rows.
+   *
+   * @param desiredTotal A {@link Vector} defining the sum of rows to solve/search for.
+   * @param matrix A {@link Matrix} of rows to achieve the desiredSum.
+   * @param currentColumn The column of the matrix currently being solved/summed.
+   * @param currentTotal A {@link Vector} of the current sum.
+   * @param currentCoefficients A {@link Vector} of the current coefficients.
+   * @param solutions A list of {@link Vector}s (of coefficients), that solve the desired sum.
+   * @param closestSolutions A list of {@link Vector}s (of coefficients), that came closest to the
+   *     desiredTotal.
+   * @param total Total number of coefficient combinations tried.
+   * @param expirationTime An {@link ExpirationTime} at which to stop searching.
+   * @return The total number of coefficient combinations attempted.
    */
   public static int solve(
-      final Vector solution,
+      final Vector desiredTotal,
       final Matrix matrix,
       final int currentColumn,
       final Vector currentTotal,
-      final List<Vector> solvedCoefficients,
-      int total,
       Vector currentCoefficients,
+      final List<Vector> solutions,
+      final List<Vector> closestSolutions,
+      int total,
       final ExpirationTime expirationTime) {
     if (currentColumn < matrix.getColumnCount()) {
-      final int min =
-          solvedCoefficients.stream().mapToInt(Vector::sum).min().orElse(Integer.MAX_VALUE);
+      final int min = solutions.stream().mapToInt(Vector::sum).min().orElse(Integer.MAX_VALUE);
       final List<Vector> rows = matrix.getRowsWithNonZeroColumn(currentColumn);
-      final int columnTarget = solution.getValue(currentColumn);
+      final int columnTarget = desiredTotal.getValue(currentColumn);
       final int currentLevel = currentTotal.getValue(currentColumn);
       final int remainingLevel = columnTarget - currentLevel;
       if (currentCoefficients.sum() + remainingLevel < min) {
         // exclude any rows that will exceed the solution level
         final List<Vector> allowable =
             rows.stream()
-                .filter(row -> !currentTotal.add(row).greaterThan(solution))
+                .filter(row -> !currentTotal.add(row).greaterThan(desiredTotal))
                 .sorted(Comparator.comparingInt(Vector::sum).reversed())
                 .toList();
         for (List<Vector> vectorCombination :
@@ -175,22 +188,36 @@ public class Toggler {
           final Map<Vector, Long> occurrences =
               vectorCombination.stream()
                   .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-          final Vector nextCoefficients = currentCoefficients.add(matrix.coefficientsFrom(occurrences));
+          final Vector nextCoefficients =
+              currentCoefficients.add(matrix.coefficientsFrom(occurrences));
           final Vector nextTotal = matrix.getSum(nextCoefficients);
           final int nextPresses = nextTotal.sum();
-          if (solution.equals(nextTotal)) {
-            solvedCoefficients.add(nextCoefficients);
+          if (desiredTotal.equals(nextTotal)) {
+            solutions.add(nextCoefficients);
             System.out.println("Presses: " + nextPresses + " Coefficients: " + nextCoefficients);
-          } else if (solution.greaterThan(nextTotal) && currentColumn < matrix.getColumnCount()) {
+          } else if (desiredTotal.greaterThan(nextTotal)
+              && currentColumn < matrix.getColumnCount()) {
+            if (closestSolutions.isEmpty()) {
+              closestSolutions.add(nextCoefficients);
+            } else {
+              final int nextDiff = desiredTotal.subtract(nextTotal).sum();
+              final int prevDiff =
+                  desiredTotal.subtract(matrix.getSum(closestSolutions.get(0))).sum();
+              if (nextDiff < prevDiff) {
+                closestSolutions.clear();
+                closestSolutions.add(nextCoefficients);
+              }
+            }
             total =
                 solve(
-                    solution,
+                    desiredTotal,
                     matrix,
                     currentColumn + 1,
                     nextTotal,
-                    solvedCoefficients,
-                    total,
                     nextCoefficients,
+                    solutions,
+                    closestSolutions,
+                    total,
                     expirationTime);
           }
         }
