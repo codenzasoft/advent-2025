@@ -32,6 +32,28 @@ class MatrixSpec extends Specification {
         result == reordered
     }
 
+    def "test re-ordering rows"() {
+        setup:
+        var matrix = new Matrix([
+                vector([1,1,1,1]),
+                vector([2,2,2,2]),
+                vector([3,3,3,3]),
+                vector([4,4,4,4])
+        ])
+        var reordered = new Matrix([
+                vector([4,4,4,4]),
+                vector([1,1,1,1]),
+                vector([2,2,2,2]),
+                vector([3,3,3,3])
+        ])
+
+        when:
+        var result = matrix.reorderRows([3,0,1,2])
+
+        then:
+        result == reordered
+    }
+
     def Vector vector(List<Integer> values) {
         return new Vector(values)
     }

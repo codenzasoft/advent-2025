@@ -53,11 +53,39 @@ class EquationSpec extends Specification {
 
 
         when:
-        var result = solution.reorder()
+        var result = solution.reorderColumns()
 
         then:
         result.getMatrix() == reordered
         result.getDesiredTotal() == vector([1,2,3,4,5])
+    }
+
+    def "test re-ordering rows"() {
+        setup:
+        var matrix = new Matrix([
+                vector([0,0,0,1]),
+                vector([1,0,1,0]),
+                vector([1,1,0,0]),
+                vector([0,0,1,1]),
+                vector([0,1,0,1])
+        ])
+        var reordered = new Matrix([
+                vector([1,1,0,0]),
+                vector([1,0,1,0]),
+                vector([0,1,0,1]),
+                vector([0,0,1,1]),
+                vector([0,0,0,1])
+        ])
+        var totals = vector([5,4,3,2])
+        var solution = new Equation(matrix, totals)
+
+
+        when:
+        var result = solution.reorderRows()
+
+        then:
+        result.getMatrix() == reordered
+        result.getDesiredTotal() == vector([5,4,3,2])
     }
 
     def Vector vector(List<Integer> values) {

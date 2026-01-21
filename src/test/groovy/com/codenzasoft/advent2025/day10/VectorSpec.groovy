@@ -43,4 +43,14 @@ class VectorSpec extends Specification {
         v2.add(v1) == new Vector([3,5,5,8])
     }
 
+    def "test binary value"() {
+        when:
+        var v1 = new Vector([0,0,1,1])
+        var v2 = new Vector([1,1,0,0])
+
+        then:
+        v1.getBinaryValue() == 3
+        v2.getBinaryValue() == 12
+    }
+
 }

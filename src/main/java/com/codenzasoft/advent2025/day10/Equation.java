@@ -1,6 +1,8 @@
 package com.codenzasoft.advent2025.day10;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Equation {
 
@@ -23,11 +25,7 @@ public class Equation {
   }
 
   public Equation optimize() {
-    return this.reduce().reorder();
-  }
-
-  public Equation expireAt(final ExpirationTime expirationTime) {
-    return new Equation(this.matrix, this.desiredTotal, expirationTime);
+    return this.reduce().reorderColumns();
   }
 
   /**
@@ -64,11 +62,28 @@ public class Equation {
    *
    * @return An equivalent re-ordered {@link Equation}.
    */
-  public Equation reorder() {
+  public Equation reorderColumns() {
     final List<Integer> incdicies = getDesiredTotal().getAscendingIncdicies();
     final Vector newTotal = getDesiredTotal().reorder(incdicies);
     final Matrix newMatrix = getMatrix().reorderColumns(incdicies);
     return new Equation(newMatrix, newTotal, expirationTime.orElse(null));
+  }
+
+  /**
+   * Returns an equivalent {@link Equation} with rows sorted in descending order of binary value.
+   *
+   * @return An equivalent re-ordered {@link Equation}.
+   */
+  public Equation reorderRows() {
+    final List<Integer> rowValues =
+        getMatrix().rows().stream().map(Vector::getBinaryValue).toList();
+    final List<Integer> indicies =
+        IntStream.range(0, rowValues.size())
+            .boxed()
+            .sorted(Comparator.comparing(rowValues::get).reversed())
+            .collect(Collectors.toList());
+    return new Equation(
+        getMatrix().reorderRows(indicies), getDesiredTotal(), expirationTime.orElse(null));
   }
 
   public Matrix getMatrix() {

@@ -24,6 +24,14 @@ public record Vector(List<Integer> values) {
     return result;
   }
 
+  public int getBinaryValue() {
+    final StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < values().size(); i++) {
+      builder.append(values().get(i));
+    }
+    return Integer.parseInt(builder.toString(), 2);
+  }
+
   public int getValue(int index) {
     return values.get(index);
   }

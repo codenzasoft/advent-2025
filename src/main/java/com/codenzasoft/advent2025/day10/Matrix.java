@@ -80,6 +80,14 @@ public record Matrix(List<Vector> rows) {
     return new Matrix(newRows);
   }
 
+  public Matrix reorderRows(final List<Integer> rowIndicies) {
+    final List<Vector> newRows = new ArrayList<>();
+    for (int row = 0; row < rowIndicies.size(); row++) {
+      newRows.add(rows().get(rowIndicies.get(row)));
+    }
+    return new Matrix(newRows);
+  }
+
   public Vector coefficientsWith(final int value) {
     return Vector.withAll(getRowCount(), value);
   }
