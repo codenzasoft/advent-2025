@@ -64,7 +64,7 @@ public class Toggler {
     final Vector initialTotal = Vector.withAll(equation.getMatrix().getColumnCount(), 0);
     final Vector initialCoefficients = equation.getMatrix().coefficientsWith(0);
 
-    int total = solve(equation, 0, initialTotal, initialCoefficients, 0, ExpirationTime.never());
+    int total = solve(equation, 0, initialTotal, initialCoefficients, 0);
     final Optional<Vector> min = equation.getSolution();
     System.out.println("Total combinations: " + total + " Min: " + min);
     return equation;
@@ -83,21 +83,24 @@ public class Toggler {
 
   public static int solveInParts(final Machine machine) {
     final Equation equation = machine.getEquation().optimize();
-    final ExpirationTime expirationTime = ExpirationTime.after(TimeUnit.SECONDS, 5);
 
     final Vector total1 =
         Vector.withAll(
             equation.getMatrix().getColumnCount(), equation.getDesiredTotal().minValue());
-    final Equation equation1 = new Equation(equation.getMatrix(), total1);
+    final Equation equation1 =
+        new Equation(equation.getMatrix(), total1, ExpirationTime.after(TimeUnit.SECONDS, 5));
     solve(equation1);
     final Vector remainingTotal;
+    final int part1Sum;
     if (equation1.getSolution().isEmpty()) {
       remainingTotal =
-          equation1
+          equation
               .getDesiredTotal()
               .subtract(equation1.getMatrix().getSum(equation1.getClosestSolution().get()));
+      part1Sum = equation1.getClosestSolution().get().sum();
     } else {
-      remainingTotal = equation1.getDesiredTotal().subtract(total1);
+      remainingTotal = equation.getDesiredTotal().subtract(total1);
+      part1Sum = equation1.getSolutionSum().getAsInt();
     }
     final Equation equation2 = new Equation(equation.getMatrix(), remainingTotal);
     solve(equation2);
@@ -105,7 +108,7 @@ public class Toggler {
       System.out.println("UNSOLVED!");
       return -1;
     }
-    return equation2.getSolutionSum().getAsInt() + equation1.getSolutionSum().getAsInt();
+    return equation2.getSolutionSum().getAsInt() + part1Sum;
   }
 
   /**
@@ -124,7 +127,6 @@ public class Toggler {
    * @param currentTotal A {@link Vector} of the current sum.
    * @param currentCoefficients A {@link Vector} of the current coefficients.
    * @param attemptedCombinationsCount Total number of coefficient combinations tried.
-   * @param expirationTime An {@link ExpirationTime} at which to stop searching.
    * @return The number of coefficient combinations attempted.
    */
   public static int solve(
@@ -132,8 +134,7 @@ public class Toggler {
       final int currentColumn,
       final Vector currentTotal,
       Vector currentCoefficients,
-      int attemptedCombinationsCount,
-      final ExpirationTime expirationTime) {
+      int attemptedCombinationsCount) {
     if (currentColumn < equation.getMatrix().getColumnCount()) {
       final int min = equation.getSolution().map(Vector::sum).orElse(Integer.MAX_VALUE);
       final List<Vector> rows = equation.getMatrix().getRowsWithNonZeroColumn(currentColumn);
@@ -149,7 +150,7 @@ public class Toggler {
                 .toList();
         for (List<Vector> vectorCombination :
             Generator.combination(allowable).multi(remainingLevel)) {
-          if (expirationTime.isExpired()) {
+          if (equation.isExpired()) {
             return -1;
           }
           attemptedCombinationsCount++;
@@ -175,8 +176,7 @@ public class Toggler {
                     currentColumn + 1,
                     nextTotal,
                     nextCoefficients,
-                    attemptedCombinationsCount,
-                    expirationTime);
+                    attemptedCombinationsCount);
           }
         }
       }

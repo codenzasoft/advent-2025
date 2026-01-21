@@ -7,16 +7,27 @@ public class Equation {
   private final Vector desiredTotal;
   private final List<Vector> coefficientSolutions = new ArrayList<>();
   private Optional<Vector> closestSolution;
+  private Optional<ExpirationTime> expirationTime;
   private Matrix matrix;
 
   public Equation(final Matrix matrix, final Vector desiredTotal) {
+    this(matrix, desiredTotal, null);
+  }
+
+  public Equation(
+      final Matrix matrix, final Vector desiredTotal, final ExpirationTime expirationTime) {
     this.desiredTotal = desiredTotal;
     this.closestSolution = Optional.empty();
+    this.expirationTime = Optional.ofNullable(expirationTime);
     this.matrix = matrix;
   }
 
   public Equation optimize() {
     return this.reduce().reorder();
+  }
+
+  public Equation expireAt(final ExpirationTime expirationTime) {
+    return new Equation(this.matrix, this.desiredTotal, expirationTime);
   }
 
   /**
@@ -44,7 +55,7 @@ public class Equation {
       }
     }
     newMatrix = newMatrix.removeRows(rowsToRemove);
-    return new Equation(newMatrix, newTotal);
+    return new Equation(newMatrix, newTotal, expirationTime.orElse(null));
   }
 
   /**
@@ -57,7 +68,7 @@ public class Equation {
     final List<Integer> incdicies = getDesiredTotal().getAscendingIncdicies();
     final Vector newTotal = getDesiredTotal().reorder(incdicies);
     final Matrix newMatrix = getMatrix().reorderColumns(incdicies);
-    return new Equation(newMatrix, newTotal);
+    return new Equation(newMatrix, newTotal, expirationTime.orElse(null));
   }
 
   public Matrix getMatrix() {
@@ -105,5 +116,9 @@ public class Equation {
     } else {
       closestSolution = Optional.of(coefficients);
     }
+  }
+
+  public boolean isExpired() {
+    return expirationTime.isPresent() && expirationTime.get().isExpired();
   }
 }
