@@ -24,42 +24,16 @@ public record Vector(List<Integer> values) {
     return result;
   }
 
-  public JoltageLevels toJoltageLevels() {
-    return new JoltageLevels(values());
-  }
-
-  public Button toButton(int id) {
-    final int[] buttons = new int[sum()];
-    int index = 0;
-    for (int i = 0; i < values().size(); i++) {
-      if (values().get(i) != 0) {
-        buttons[index] = i;
-        index++;
-      }
-    }
-    return new Button(id, buttons);
-  }
-
-  public int getBinaryValue() {
-    final StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < values().size(); i++) {
-      builder.append(values().get(i));
-    }
-    return Integer.parseInt(builder.toString(), 2);
-  }
-
-  public Vector withValueAt(int index, int value) {
-    final List<Integer> newValues = new ArrayList<>(values);
-    newValues.set(index, value);
-    return new Vector(newValues);
-  }
-
   public int getValue(int index) {
     return values.get(index);
   }
 
   public int sum() {
     return values.stream().mapToInt(i -> i).sum();
+  }
+
+  public int minValue() {
+    return values.stream().min(Comparator.naturalOrder()).orElse(0);
   }
 
   public Vector multiply(final int value) {
@@ -70,10 +44,14 @@ public record Vector(List<Integer> values) {
     return new Vector(newValues);
   }
 
-  public List<Integer> getSortedIndicies() {
+  public List<Integer> getAscendingIncdicies() {
+    return getSortedIndicies(Comparator.comparingInt(values::get));
+  }
+
+  public List<Integer> getSortedIndicies(final Comparator<Integer> comparator) {
     return IntStream.range(0, values.size())
         .boxed()
-        .sorted(Comparator.comparingInt(values::get))
+        .sorted(comparator)
         .collect(Collectors.toList());
   }
 
@@ -120,10 +98,6 @@ public record Vector(List<Integer> values) {
     return false;
   }
 
-  public Vector duplicate() {
-    return new Vector(values());
-  }
-
   public boolean contains(final int value) {
     if (values().contains(value)) {
       return true;
@@ -131,13 +105,29 @@ public record Vector(List<Integer> values) {
     return false;
   }
 
-  public int indexOf(final int value) {
-    return values().indexOf(value);
+  public List<Integer> indiciesOf(final int value) {
+    final List<Integer> indicies = new ArrayList<>();
+    for (int i = 0; i < values().size(); i++) {
+      if (values().get(i) == value) {
+        indicies.add(i);
+      }
+    }
+    return indicies;
   }
 
   public Vector removeColumn(final int column) {
     final List<Integer> newValues = new ArrayList<>(values());
     newValues.remove(column);
+    return new Vector(newValues);
+  }
+
+  public Vector removeIndicies(final List<Integer> indicies) {
+    final List<Integer> newValues = new ArrayList<>();
+    for (int i = 0; i < values().size(); i++) {
+      if (!indicies.contains(i)) {
+        newValues.add(values().get(i));
+      }
+    }
     return new Vector(newValues);
   }
 }

@@ -21,28 +21,13 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
 
         when:
-        int min = Toggler.solve(machine).map(Vector::sum).orElse(0)
+        int min = Toggler.solve(machine).getSolutionSum().orElse(0)
         int parts = Toggler.solveInParts(machine)
-        int bfs = Toggler.bfs(machine)
-        int coeff = Toggler.solveCoefficients(machine)
 
         then:
         min == 10
         parts == 10
-        bfs == 10
-        coeff == 10
     }
-
-//    def "test solving a machine's joltage using Jama"() {
-//        setup:
-//        var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
-//
-//        when:
-//        int jama = Toggler.solveJama(machine)
-//
-//        then:
-//        jama == 10
-//    }
 
     def "test solving a machine's joltage using min norm"() {
         setup:
@@ -75,12 +60,10 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}")
 
         when:
-        int min = Toggler.solve(machine).map(Vector::sum).orElse(0)
-        int coeff = Toggler.solveCoefficients(machine)
+        int min = Toggler.solve(machine).getSolutionSum().orElse(0)
 
         then:
         min == 12
-        coeff == 12
     }
 
     def "test solving for ones"() {
@@ -88,7 +71,7 @@ class TogglerSpec extends Specification {
         var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {1,1,1,1}")
 
         when:
-        int r0 = Toggler.solve(machine).map(Vector::sum).orElse(0)
+        int r0 = Toggler.solve(machine).getSolutionSum().orElse(0)
 
         then:
         r0 == 2
@@ -101,9 +84,9 @@ class TogglerSpec extends Specification {
         var m2 = Machine.parse("[.##.] (3) (1,3) (2) (0,2) {0,2,0,3}")
 
         when:
-        int r0 = Toggler.solve(machine).map(Vector::sum).orElse(0)
-        int r1 = Toggler.solve(m1).map(Vector::sum).orElse(0)
-        int r2 = Toggler.solve(m2).map(Vector::sum).orElse(0)
+        int r0 = Toggler.solve(machine).getSolutionSum().orElse(0)
+        int r1 = Toggler.solve(m1).getSolutionSum().orElse(0)
+        int r2 = Toggler.solve(m2).getSolutionSum().orElse(0)
 
         then:
         r0 == 10

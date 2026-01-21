@@ -38,6 +38,14 @@ public record Matrix(List<Vector> rows) {
     return new Matrix(newRows);
   }
 
+  public Matrix removeColumns(final List<Integer> columnIndicies) {
+    final List<Vector> newRows = new ArrayList<>();
+    for (final Vector row : rows()) {
+      newRows.add(row.removeIndicies(columnIndicies));
+    }
+    return new Matrix(newRows);
+  }
+
   public List<Vector> getRowsWithNonZeroColumn(final int column) {
     final List<Vector> result = new ArrayList<>();
     for (Vector row : rows()) {
@@ -51,6 +59,16 @@ public record Matrix(List<Vector> rows) {
   public Matrix removeRow(final int row) {
     final List<Vector> newRows = new ArrayList<>(rows());
     newRows.remove(row);
+    return new Matrix(newRows);
+  }
+
+  public Matrix removeRows(final List<Integer> rowIndicies) {
+    final List<Vector> newRows = new ArrayList<>();
+    for (int index = 0; index < rowIndicies.size(); index++) {
+      if (!rowIndicies.contains(index)) {
+        newRows.add(rows().get(index));
+      }
+    }
     return new Matrix(newRows);
   }
 

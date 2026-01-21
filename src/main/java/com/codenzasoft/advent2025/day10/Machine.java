@@ -40,42 +40,7 @@ public record Machine(Lights lights, List<Button> buttonList, JoltageLevels jolt
     return new Matrix(vectors);
   }
 
-  public Machine getSortedJoltage() {
-    final Vector originalJoltage = new Vector(joltage().levels());
-    final List<Integer> sortedIndicies = originalJoltage.getSortedIndicies();
-    final JoltageLevels sortedJoltage = originalJoltage.reorder(sortedIndicies).toJoltageLevels();
-    final List<Button> sortedButtons = new ArrayList<>();
-    for (final Button button : buttonList()) {
-      sortedButtons.add(button.getVector(this).reorder(sortedIndicies).toButton(button.id()));
-    }
-    return new Machine(lights(), sortedButtons, sortedJoltage);
-  }
-
-  public Machine removeZeroJoltages() {
-    Vector newJoltage = joltage().getVector();
-    int zeroIndex = newJoltage.indexOf(0);
-    Matrix newMatrix = getMatrix();
-    while (zeroIndex >= 0) {
-      newJoltage = newJoltage.removeColumn(zeroIndex);
-      // remove any rows (buttons) that have a 1 for that index (they cannot be used)
-      Vector column = newMatrix.getColumn(zeroIndex);
-      int oneIndex = column.indexOf(1);
-      while (oneIndex >= 0) {
-        newMatrix = newMatrix.removeRow(oneIndex);
-        column = newMatrix.getColumn(zeroIndex);
-        oneIndex = column.indexOf(1);
-      }
-      // remove the column
-      newMatrix = newMatrix.removeColumn(zeroIndex);
-
-      zeroIndex = newJoltage.indexOf(0);
-    }
-    final List<Button> newButtons = new ArrayList<>();
-    int id = 0;
-    for (final Vector row : newMatrix.rows()) {
-      newButtons.add(row.toButton(id));
-      id++;
-    }
-    return new Machine(lights(), newButtons, newJoltage.toJoltageLevels());
+  public Equation getEquation() {
+    return new Equation(getMatrix(), joltage().getVector());
   }
 }

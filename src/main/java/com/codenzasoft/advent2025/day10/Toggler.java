@@ -49,60 +49,25 @@ public class Toggler {
     int sum = 0;
     int count = 0;
     for (final Machine machine : machines) {
-      sum += solve(machine).map(Vector::sum).orElse(0);
+      sum += solve(machine).getSolutionSum().orElse(0);
       count++;
       System.out.println("Solved " + count + " of " + machines.size());
     }
     return sum;
   }
 
-  public static int solveForValue(
-      final Machine machine, final JoltageLevels solution, final ExpirationTime expirationTime) {
-    System.out.println("Solving for value: " + solution);
-    JoltageLevels zero = machine.newJoltage(0);
-    final List<Vector> solutions = new ArrayList<>();
-    final List<Vector> closest = new ArrayList<>();
-    final Matrix matrix = machine.getMatrix();
-    final Vector coefficients = matrix.coefficientsWith(0);
-    int total =
-        solve(
-            solution.getVector(),
-            matrix,
-            0,
-            zero.getVector(),
-            coefficients,
-            solutions,
-            closest,
-            0,
-            expirationTime);
-    final int min = solutions.stream().mapToInt(Vector::sum).min().orElse(0);
-    System.out.println(
-        "Value (" + solution.getVector() + ") combinations: " + total + " Min: " + min);
-    return min;
+  public static Equation solve(final Machine machine) {
+    return solve(machine.getEquation().optimize());
   }
 
-  public static Optional<Vector> solve(final Machine machine) {
-    final Machine sortedMachine = machine.getSortedJoltage().removeZeroJoltages();
-    final Vector value = Vector.withAll(sortedMachine.joltage().levels().size(), 0);
-    final List<Vector> solutions = new ArrayList<>();
-    final List<Vector> closest = new ArrayList<>();
-    final Matrix matrix = sortedMachine.getMatrix();
-    final Vector coefficients = matrix.coefficientsWith(0);
+  public static Equation solve(final Equation equation) {
+    final Vector initialTotal = Vector.withAll(equation.getMatrix().getColumnCount(), 0);
+    final Vector initialCoefficients = equation.getMatrix().coefficientsWith(0);
 
-    int total =
-        solve(
-            sortedMachine.joltage().getVector(),
-            matrix,
-            0,
-            value,
-            coefficients,
-            solutions,
-            closest,
-            0,
-            ExpirationTime.never());
-    final Optional<Vector> min = solutions.stream().min(Comparator.comparing(Vector::sum));
+    int total = solve(equation, 0, initialTotal, initialCoefficients, 0, ExpirationTime.never());
+    final Optional<Vector> min = equation.getSolution();
     System.out.println("Total combinations: " + total + " Min: " + min);
-    return min;
+    return equation;
   }
 
   public static int solveInParts(final List<Machine> machines) {
@@ -114,69 +79,72 @@ public class Toggler {
       System.out.println("Solved " + count + " of " + machines.size());
     }
     return sum;
-    // return machines.stream().mapToInt(Toggler::solveInParts).sum();
   }
 
   public static int solveInParts(final Machine machine) {
-    final ExpirationTime expirationTime = ExpirationTime.after(TimeUnit.SECONDS, 10);
-    final JoltageLevels minJoltage = machine.newJoltage(machine.joltage().getMinValue());
-    final int part1 = solveForValue(machine, minJoltage, expirationTime);
-    if (part1 <= 0) {
+    final Equation equation = machine.getEquation().optimize();
+    final ExpirationTime expirationTime = ExpirationTime.after(TimeUnit.SECONDS, 5);
+
+    final Vector total1 =
+        Vector.withAll(
+            equation.getMatrix().getColumnCount(), equation.getDesiredTotal().minValue());
+    final Equation equation1 = new Equation(equation.getMatrix(), total1);
+    solve(equation1);
+    final Vector remainingTotal;
+    if (equation1.getSolution().isEmpty()) {
+      remainingTotal =
+          equation1
+              .getDesiredTotal()
+              .subtract(equation1.getMatrix().getSum(equation1.getClosestSolution().get()));
+    } else {
+      remainingTotal = equation1.getDesiredTotal().subtract(total1);
+    }
+    final Equation equation2 = new Equation(equation.getMatrix(), remainingTotal);
+    solve(equation2);
+    if (equation2.getSolution().isEmpty()) {
       System.out.println("UNSOLVED!");
       return -1;
-    } else {
-      final JoltageLevels remainingJoltage = machine.joltage().subtract(minJoltage);
-      final int part2 = solveForValue(machine, remainingJoltage, expirationTime);
-      if (part2 < 0) {
-        System.out.println("UNSOLVED!");
-        return -1;
-      }
-      return part2 + part1;
     }
+    return equation2.getSolutionSum().getAsInt() + equation1.getSolutionSum().getAsInt();
   }
 
   /**
-   * Searches for a minimum solution to achieve the desiredTotal, by adding any combination of rows
-   * in the provided matrix. Solutions are added to the provided solutions collection as a {@link
-   * Vector} of coefficients describing the number of each row in the matrix used to produce the
-   * desiredTotal.
+   * Searches for a minimum equation to achieve the desired total defined in the provided equation,
+   * by adding any combination of rows in the associated matrix. Solutions are added to the provided
+   * {@link Equation} as a {@link Vector} of coefficients describing the number of each row in the
+   * matrix used to produce the desiredTotal.
    *
-   * <p>The algorithm works by solving each column. Once a solution is found, it is used to reduce
-   * the search space and discard any solutions that require more rows.
+   * <p>The algorithm works by attempting all combinations of each column that add up to the desired
+   * total for that column. Once a equation is found, it is used to reduce the search space by
+   * avoiding solutions that require more rows to achieve the desired total.
    *
-   * @param desiredTotal A {@link Vector} defining the sum of rows to solve/search for.
-   * @param matrix A {@link Matrix} of rows to achieve the desiredSum.
-   * @param currentColumn The column of the matrix currently being solved/summed.
+   * @param equation A {@link Equation} defining the desired sum of rows to solve/search for and
+   *     associated {@link Matrix}.
+   * @param currentColumn The column of the matrix currently being solved.
    * @param currentTotal A {@link Vector} of the current sum.
    * @param currentCoefficients A {@link Vector} of the current coefficients.
-   * @param solutions A list of {@link Vector}s (of coefficients), that solve the desired sum.
-   * @param closestSolutions A list of {@link Vector}s (of coefficients), that came closest to the
-   *     desiredTotal.
-   * @param total Total number of coefficient combinations tried.
+   * @param attemptedCombinationsCount Total number of coefficient combinations tried.
    * @param expirationTime An {@link ExpirationTime} at which to stop searching.
-   * @return The total number of coefficient combinations attempted.
+   * @return The number of coefficient combinations attempted.
    */
   public static int solve(
-      final Vector desiredTotal,
-      final Matrix matrix,
+      final Equation equation,
       final int currentColumn,
       final Vector currentTotal,
       Vector currentCoefficients,
-      final List<Vector> solutions,
-      final List<Vector> closestSolutions,
-      int total,
+      int attemptedCombinationsCount,
       final ExpirationTime expirationTime) {
-    if (currentColumn < matrix.getColumnCount()) {
-      final int min = solutions.stream().mapToInt(Vector::sum).min().orElse(Integer.MAX_VALUE);
-      final List<Vector> rows = matrix.getRowsWithNonZeroColumn(currentColumn);
-      final int columnTarget = desiredTotal.getValue(currentColumn);
-      final int currentLevel = currentTotal.getValue(currentColumn);
-      final int remainingLevel = columnTarget - currentLevel;
+    if (currentColumn < equation.getMatrix().getColumnCount()) {
+      final int min = equation.getSolution().map(Vector::sum).orElse(Integer.MAX_VALUE);
+      final List<Vector> rows = equation.getMatrix().getRowsWithNonZeroColumn(currentColumn);
+      final int desiredColumnTotal = equation.getDesiredTotal().getValue(currentColumn);
+      final int currentColumnTotal = currentTotal.getValue(currentColumn);
+      final int remainingLevel = desiredColumnTotal - currentColumnTotal;
       if (currentCoefficients.sum() + remainingLevel < min) {
-        // exclude any rows that will exceed the solution level
+        // exclude any rows that will exceed the desired total
         final List<Vector> allowable =
             rows.stream()
-                .filter(row -> !currentTotal.add(row).greaterThan(desiredTotal))
+                .filter(row -> !currentTotal.add(row).greaterThan(equation.getDesiredTotal()))
                 .sorted(Comparator.comparingInt(Vector::sum).reversed())
                 .toList();
         for (List<Vector> vectorCombination :
@@ -184,195 +152,36 @@ public class Toggler {
           if (expirationTime.isExpired()) {
             return -1;
           }
-          total++;
+          attemptedCombinationsCount++;
           final Map<Vector, Long> occurrences =
               vectorCombination.stream()
                   .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
           final Vector nextCoefficients =
-              currentCoefficients.add(matrix.coefficientsFrom(occurrences));
-          final Vector nextTotal = matrix.getSum(nextCoefficients);
-          final int nextPresses = nextTotal.sum();
-          if (desiredTotal.equals(nextTotal)) {
-            solutions.add(nextCoefficients);
-            System.out.println("Presses: " + nextPresses + " Coefficients: " + nextCoefficients);
-          } else if (desiredTotal.greaterThan(nextTotal)
-              && currentColumn < matrix.getColumnCount()) {
-            if (closestSolutions.isEmpty()) {
-              closestSolutions.add(nextCoefficients);
-            } else {
-              final int nextDiff = desiredTotal.subtract(nextTotal).sum();
-              final int prevDiff =
-                  desiredTotal.subtract(matrix.getSum(closestSolutions.get(0))).sum();
-              if (nextDiff < prevDiff) {
-                closestSolutions.clear();
-                closestSolutions.add(nextCoefficients);
-              }
-            }
-            total =
+              currentCoefficients.add(equation.getMatrix().coefficientsFrom(occurrences));
+          final Vector nextTotal = equation.getMatrix().getSum(nextCoefficients);
+          if (equation.addSolution(nextTotal, nextCoefficients)) {
+            System.out.println(
+                "Found Equation: "
+                    + nextCoefficients
+                    + "("
+                    + attemptedCombinationsCount
+                    + " combinations)");
+          } else if (equation.getDesiredTotal().greaterThan(nextTotal)
+              && currentColumn < equation.getMatrix().getColumnCount()) {
+            equation.addClosestSolution(nextCoefficients);
+            attemptedCombinationsCount =
                 solve(
-                    desiredTotal,
-                    matrix,
+                    equation,
                     currentColumn + 1,
                     nextTotal,
                     nextCoefficients,
-                    solutions,
-                    closestSolutions,
-                    total,
+                    attemptedCombinationsCount,
                     expirationTime);
           }
         }
       }
     }
-    return total;
-  }
-
-  public static int bfs(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::bfs).sum();
-  }
-
-  public static int bfs(final Machine machine) {
-    final Matrix matrix = machine.getMatrix();
-    final Vector solution = new Vector(machine.joltage().levels());
-    final Vector zeros = Vector.withAll(matrix.getColumnCount(), 0);
-    final Node root = new Node(zeros, 0);
-    final LinkedList<Node> queue = new LinkedList<>();
-    queue.add(root);
-    int total = 1;
-    while (!queue.isEmpty()) {
-      final Node node = queue.remove();
-      final List<Node> children = node.buildChildren(matrix, solution);
-      total += children.size();
-      final Optional<Node> winner =
-          children.stream().filter(c -> c.getVector().equals(solution)).findFirst();
-      if (winner.isPresent()) {
-        System.out.println("Winner (after " + total + "): " + winner.get());
-        return winner.get().getCount();
-      }
-      queue.addAll(children);
-    }
-    return -1;
-  }
-
-  public static int solveCoefficients(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::solveCoefficients).sum();
-  }
-
-  public static int solveCoefficients(final Machine machine) {
-    final List<Vector> vectors =
-        machine.buttonList().stream()
-            .map(b -> b.getVector(machine))
-            .sorted(Comparator.comparingInt(Vector::sum))
-            .toList();
-    final Vector desiredJoltage = machine.joltage().getVector();
-    final Vector value = Vector.withAll(machine.joltage().levels().size(), 0);
-    final Vector coefficients = Vector.withAll(vectors.size(), 0);
-    final List<Vector> solutions = new ArrayList<>();
-    int total =
-        solveCoefficients(
-            desiredJoltage, value, coefficients, vectors, 0, solutions, 0, ExpirationTime.never());
-    final int min = solutions.stream().mapToInt(Vector::sum).min().orElse(0);
-    System.out.println("Total combinations: " + total + " Min: " + min);
-    return min;
-  }
-
-  public static int solveCoefficients(
-      final Vector desiredJoltage,
-      final Vector currentValue,
-      final Vector coefficients,
-      final List<Vector> vectors,
-      final int vectorIndex,
-      final List<Vector> solutions,
-      int totalCombinations,
-      final ExpirationTime expirationTime) {
-
-    if (vectorIndex < vectors.size()) {
-      final OptionalInt minSolution = solutions.stream().mapToInt(Vector::sum).min();
-      final Vector remainingJoltage = desiredJoltage.subtract(currentValue);
-      final Vector vector = vectors.get(vectorIndex);
-      final int maxCoefficient = vector.getMaxCoefficient(remainingJoltage);
-      for (int coefficient = maxCoefficient; coefficient >= 0; coefficient--) {
-        final Vector nextCoefficients = coefficients.withValueAt(vectorIndex, coefficient);
-        if (minSolution.isEmpty() || minSolution.getAsInt() > nextCoefficients.sum()) {
-          final Vector multiple = vector.multiply(coefficient);
-          final Vector nextValue = currentValue.add(multiple);
-          totalCombinations++;
-          if (nextValue.equals(desiredJoltage)) {
-            solutions.add(nextCoefficients);
-            System.out.println(
-                "Solution ("
-                    + totalCombinations
-                    + "): "
-                    + nextCoefficients
-                    + " Num Presses: "
-                    + nextCoefficients.sum());
-          } else if (nextValue.greaterThan(desiredJoltage)) {
-            break;
-          } else {
-            totalCombinations =
-                solveCoefficients(
-                    desiredJoltage,
-                    nextValue,
-                    nextCoefficients,
-                    vectors,
-                    vectorIndex + 1,
-                    solutions,
-                    totalCombinations,
-                    expirationTime);
-          }
-        }
-      }
-    }
-    return totalCombinations;
-  }
-
-  public static int solveJama(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::solveCoefficients).sum();
-  }
-
-  // solve linear equations
-  public static int solveJama(final Machine machine) {
-    final List<Vector> vectors =
-        machine.buttonList().stream()
-            .map(b -> b.getVector(machine))
-            .sorted(Comparator.comparingInt(Vector::sum).reversed())
-            .toList();
-    final Vector desiredJoltage = machine.joltage().getVector();
-
-    // Coefficients matrix A - vectors become the columns
-    final int numRows = desiredJoltage.values().size();
-    final int numCols = vectors.size();
-    double[][] lhsArray = new double[numRows][numCols];
-    for (int r = 0; r < numRows; r++) {
-      for (int c = 0; c < numCols; c++) {
-        lhsArray[r][c] = vectors.get(c).getValue(r);
-      }
-    }
-    // Constants vector B
-    double[] rhsArray = desiredJoltage.toJama();
-
-    // Create Matrix objects from the arrays
-    Jama.Matrix lhs = new Jama.Matrix(lhsArray);
-    Jama.Matrix rhs = new Jama.Matrix(rhsArray, numRows); // Specify number of rows
-
-    // Solve for the variable vector X (A * X = B)
-    // The solve() method performs the necessary linear algebra operations
-    Jama.Matrix ans = lhs.solve(rhs);
-
-    // Print the results (rounded for cleaner output)
-    final List<Integer> solution = new ArrayList<>();
-    for (int i = 0; i < vectors.size(); i++) {
-      final int c = (int) Math.round(ans.get(i, 0));
-      solution.add(c);
-      System.out.println("c(" + i + ") = " + c);
-    }
-
-    final int min = solution.stream().mapToInt(i -> i).sum();
-    System.out.println("Jama solution: " + min);
-    return min;
-  }
-
-  public static int solveMinimumNorm(final List<Machine> machines) {
-    return machines.stream().mapToInt(Toggler::solveMinimumNorm).sum();
+    return attemptedCombinationsCount;
   }
 
   public static int solveMinimumNorm(final Machine machine) {
@@ -404,7 +213,7 @@ public class Toggler {
       coefficients.add((int) Math.round(v));
     }
     final Vector v = new Vector(coefficients);
-    System.out.println("Rounded Solution: " + v);
+    System.out.println("Rounded Equation: " + v);
     System.out.println("Validated: " + multiply(vectors, v));
     return (int) Math.round(Math.floor(minNormSolution.getL1Norm()));
   }
