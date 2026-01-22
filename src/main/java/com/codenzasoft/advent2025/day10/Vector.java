@@ -32,6 +32,14 @@ public record Vector(List<Integer> values) {
     return Integer.parseInt(builder.toString(), 2);
   }
 
+  public int getReversedBinaryValue() {
+    final StringBuilder builder = new StringBuilder();
+    for (int i = values().size() - 1; i >= 0; i--) {
+      builder.append(values().get(i));
+    }
+    return Integer.parseInt(builder.toString(), 2);
+  }
+
   public int getValue(int index) {
     return values.get(index);
   }

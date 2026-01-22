@@ -10,6 +10,14 @@ public record Matrix(List<Vector> rows) {
     return rows().get(row);
   }
 
+  public List<Vector> columns() {
+    final List<Vector> columns = new ArrayList<>();
+    for (int col = 0; col < getColumnCount(); col++) {
+      columns.add(getColumn(col));
+    }
+    return columns;
+  }
+
   public Vector getColumn(final int column) {
     final List<Integer> values = new ArrayList<>();
     for (int row = 0; row < rows().size(); row++) {
@@ -106,5 +114,15 @@ public record Matrix(List<Vector> rows) {
       sum = sum.add(getRow(r).multiply(coefficients.getValue(r)));
     }
     return sum;
+  }
+
+  public String toString() {
+    final StringBuilder builder = new StringBuilder();
+    builder.append("\n");
+    for (int r = 0; r < rows().size(); r++) {
+      builder.append(rows().get(r).toString());
+      builder.append("\n");
+    }
+    return builder.toString();
   }
 }

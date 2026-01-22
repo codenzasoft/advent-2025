@@ -136,4 +136,8 @@ public class Equation {
   public boolean isExpired() {
     return expirationTime.isPresent() && expirationTime.get().isExpired();
   }
+
+  public boolean isGreaterThanDesiredTotal(final Vector vector) {
+    return vector.greaterThan(getDesiredTotal());
+  }
 }

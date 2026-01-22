@@ -61,9 +61,25 @@ public class Toggler {
   }
 
   public static Equation solve(final Equation equation) {
-    final Vector initialTotal = Vector.withAll(equation.getMatrix().getColumnCount(), 0);
-    final Vector initialCoefficients = equation.getMatrix().coefficientsWith(0);
+    final List<Integer> initialTotalValues = new ArrayList<>();
+    final List<Integer> initialCoefficientValues =
+        new ArrayList<>(equation.getMatrix().coefficientsWith(0).values());
+    for (int col = 0; col < equation.getMatrix().getColumnCount(); col++) {
+      final Vector column = equation.getMatrix().getColumn(col);
+      if (column.sum() == 1) {
+        System.out.println("INDEPENDENT COLUMN: " + col);
+        initialTotalValues.add(equation.getDesiredTotal().getValue(col));
+        final int coefficientIndex = column.indiciesOf(1).get(0);
+        initialCoefficientValues.set(coefficientIndex, equation.getDesiredTotal().getValue(col));
+      } else {
+        initialTotalValues.add(0);
+      }
+    }
+    final Vector initialTotal = new Vector(initialTotalValues);
+    final Vector initialCoefficients = new Vector(initialCoefficientValues);
 
+    System.out.println("Matrix: " + equation.getMatrix());
+    System.out.println("Solving for total: " + equation.getDesiredTotal());
     int total = solve(equation, 0, initialTotal, initialCoefficients, 0);
     final Optional<Vector> min = equation.getSolution();
     System.out.println("Total combinations: " + total + " Min: " + min);
@@ -162,9 +178,11 @@ public class Toggler {
           final Vector nextTotal = equation.getMatrix().getSum(nextCoefficients);
           if (equation.addSolution(nextTotal, nextCoefficients)) {
             System.out.println(
-                "Found Equation: "
+                "Found Solution: "
                     + nextCoefficients
-                    + "("
+                    + " Sum: "
+                    + nextCoefficients.sum()
+                    + " ("
                     + attemptedCombinationsCount
                     + " combinations)");
           } else if (equation.getDesiredTotal().greaterThan(nextTotal)

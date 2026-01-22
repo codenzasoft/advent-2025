@@ -54,6 +54,28 @@ class MatrixSpec extends Specification {
         result == reordered
     }
 
+    def "test column retrieval"() {
+        setup:
+        var matrix = new Matrix([
+                vector([1,1,1,1]),
+                vector([2,2,2,2]),
+                vector([3,3,3,3]),
+                vector([4,4,4,4])
+        ])
+        var columns = [
+                vector([1,2,3,4]),
+                vector([1,2,3,4]),
+                vector([1,2,3,4]),
+                vector([1,2,3,4])
+        ]
+
+        when:
+        var result = matrix.columns()
+
+        then:
+        result == columns
+    }
+
     def Vector vector(List<Integer> values) {
         return new Vector(values)
     }
