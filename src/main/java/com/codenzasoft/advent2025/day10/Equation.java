@@ -11,6 +11,8 @@ public class Equation {
   private Optional<Vector> closestSolution;
   private Optional<ExpirationTime> expirationTime;
   private Matrix matrix;
+  private Vector initialCoefficients = null;
+  private Vector initialTotals = null;
 
   public Equation(final Matrix matrix, final Vector desiredTotal) {
     this(matrix, desiredTotal, null);
@@ -22,6 +24,7 @@ public class Equation {
     this.closestSolution = Optional.empty();
     this.expirationTime = Optional.ofNullable(expirationTime);
     this.matrix = matrix;
+    withDefaultInitialCoefficients();
   }
 
   public Equation optimize() {
@@ -84,6 +87,38 @@ public class Equation {
             .collect(Collectors.toList());
     return new Equation(
         getMatrix().reorderRows(indicies), getDesiredTotal(), expirationTime.orElse(null));
+  }
+
+  public Equation withDefaultInitialCoefficients() {
+    initialTotals = Vector.withAll(getMatrix().getColumnCount(), 0);
+    initialCoefficients = Vector.withAll(getMatrix().getRowCount(), 0);
+    return this;
+  }
+
+  public Equation withOptimizedInitialCoefficients() {
+    final List<Integer> initialCoefficientValues =
+        new ArrayList<>(getMatrix().coefficientsWith(0).values());
+    for (int col = 0; col < getMatrix().getColumnCount(); col++) {
+      final Vector column = getMatrix().getColumn(col);
+      if (column.sum() == 1) {
+        System.out.println("INDEPENDENT COLUMN: " + col);
+        final int coefficientIndex = column.indiciesOf(1).get(0);
+        initialCoefficientValues.set(coefficientIndex, getDesiredTotal().getValue(col));
+      }
+    }
+
+    initialCoefficients = new Vector(initialCoefficientValues);
+    initialTotals = getMatrix().getSum(initialCoefficients);
+    addSolution(initialTotals, initialCoefficients);
+    return this;
+  }
+
+  public Vector getInitialCoefficients() {
+    return initialCoefficients;
+  }
+
+  public Vector getInitialTotals() {
+    return initialTotals;
   }
 
   public Matrix getMatrix() {

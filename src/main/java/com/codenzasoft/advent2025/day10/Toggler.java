@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2025.day10;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -57,30 +58,14 @@ public class Toggler {
   }
 
   public static Equation solve(final Machine machine) {
-    return solve(machine.getEquation().optimize());
+    return solve(machine.getEquation().optimize().withOptimizedInitialCoefficients());
   }
 
   public static Equation solve(final Equation equation) {
-    final List<Integer> initialTotalValues = new ArrayList<>();
-    final List<Integer> initialCoefficientValues =
-        new ArrayList<>(equation.getMatrix().coefficientsWith(0).values());
-    for (int col = 0; col < equation.getMatrix().getColumnCount(); col++) {
-      final Vector column = equation.getMatrix().getColumn(col);
-      if (column.sum() == 1) {
-        System.out.println("INDEPENDENT COLUMN: " + col);
-        initialTotalValues.add(equation.getDesiredTotal().getValue(col));
-        final int coefficientIndex = column.indiciesOf(1).get(0);
-        initialCoefficientValues.set(coefficientIndex, equation.getDesiredTotal().getValue(col));
-      } else {
-        initialTotalValues.add(0);
-      }
-    }
-    final Vector initialTotal = new Vector(initialTotalValues);
-    final Vector initialCoefficients = new Vector(initialCoefficientValues);
-
     System.out.println("Matrix: " + equation.getMatrix());
     System.out.println("Solving for total: " + equation.getDesiredTotal());
-    int total = solve(equation, 0, initialTotal, initialCoefficients, 0);
+    int total =
+        solve(equation, 0, equation.getInitialTotals(), equation.getInitialCoefficients(), 0);
     final Optional<Vector> min = equation.getSolution();
     System.out.println("Total combinations: " + total + " Min: " + min);
     return equation;
@@ -100,9 +85,8 @@ public class Toggler {
   public static int solveInParts(final Machine machine) {
     final Equation equation = machine.getEquation().optimize();
 
-    final Vector total1 =
-        Vector.withAll(
-            equation.getMatrix().getColumnCount(), equation.getDesiredTotal().minValue());
+    final int gcd = findGCD(equation.getDesiredTotal().values());
+    final Vector total1 = Vector.withAll(equation.getMatrix().getColumnCount(), gcd);
     final Equation equation1 =
         new Equation(equation.getMatrix(), total1, ExpirationTime.after(TimeUnit.SECONDS, 5));
     solve(equation1);
@@ -115,8 +99,9 @@ public class Toggler {
               .subtract(equation1.getMatrix().getSum(equation1.getClosestSolution().get()));
       part1Sum = equation1.getClosestSolution().get().sum();
     } else {
-      remainingTotal = equation.getDesiredTotal().subtract(total1);
-      part1Sum = equation1.getSolutionSum().getAsInt();
+      final int multiple = equation.getDesiredTotal().minValue() / gcd;
+      remainingTotal = equation.getDesiredTotal().subtract(total1.multiply(multiple));
+      part1Sum = equation1.getSolutionSum().getAsInt() * multiple;
     }
     final Equation equation2 = new Equation(equation.getMatrix(), remainingTotal);
     solve(equation2);
@@ -125,6 +110,17 @@ public class Toggler {
       return -1;
     }
     return equation2.getSolutionSum().getAsInt() + part1Sum;
+  }
+
+  public static int findGCD(final List<Integer> numbers) {
+    BigInteger result = BigInteger.valueOf(numbers.get(0));
+    for (int i = 1; i < numbers.size(); i++) {
+      result = result.gcd(BigInteger.valueOf(numbers.get(i)));
+      if (result.equals(BigInteger.ONE)) {
+        return 1; // GCD is 1, no need to check further
+      }
+    }
+    return result.intValue();
   }
 
   /**
@@ -157,44 +153,67 @@ public class Toggler {
       final int desiredColumnTotal = equation.getDesiredTotal().getValue(currentColumn);
       final int currentColumnTotal = currentTotal.getValue(currentColumn);
       final int remainingLevel = desiredColumnTotal - currentColumnTotal;
-      if (currentCoefficients.sum() + remainingLevel < min) {
+      if (remainingLevel == 0 && currentColumn < equation.getMatrix().getColumnCount()) {
+        // slight shortcut if this column is already at its desired total
+        attemptedCombinationsCount =
+            solve(
+                equation,
+                currentColumn + 1,
+                currentTotal,
+                currentCoefficients,
+                attemptedCombinationsCount);
+      } else if (currentCoefficients.sum() + remainingLevel < min) {
         // exclude any rows that will exceed the desired total
         final List<Vector> allowable =
             rows.stream()
                 .filter(row -> !currentTotal.add(row).greaterThan(equation.getDesiredTotal()))
-                .sorted(Comparator.comparingInt(Vector::sum).reversed())
+                .sorted(Comparator.comparingInt(Vector::getReversedBinaryValue).reversed())
                 .toList();
-        for (List<Vector> vectorCombination :
-            Generator.combination(allowable).multi(remainingLevel)) {
-          if (equation.isExpired()) {
-            return -1;
-          }
-          attemptedCombinationsCount++;
-          final Map<Vector, Long> occurrences =
-              vectorCombination.stream()
-                  .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-          final Vector nextCoefficients =
-              currentCoefficients.add(equation.getMatrix().coefficientsFrom(occurrences));
-          final Vector nextTotal = equation.getMatrix().getSum(nextCoefficients);
-          if (equation.addSolution(nextTotal, nextCoefficients)) {
-            System.out.println(
-                "Found Solution: "
-                    + nextCoefficients
-                    + " Sum: "
-                    + nextCoefficients.sum()
-                    + " ("
-                    + attemptedCombinationsCount
-                    + " combinations)");
-          } else if (equation.getDesiredTotal().greaterThan(nextTotal)
-              && currentColumn < equation.getMatrix().getColumnCount()) {
-            equation.addClosestSolution(nextCoefficients);
-            attemptedCombinationsCount =
-                solve(
-                    equation,
-                    currentColumn + 1,
-                    nextTotal,
-                    nextCoefficients,
-                    attemptedCombinationsCount);
+        if (allowable.isEmpty()) {
+          // slight shortcut if there are no allowable rows
+          attemptedCombinationsCount =
+              solve(
+                  equation,
+                  currentColumn + 1,
+                  currentTotal,
+                  currentCoefficients,
+                  attemptedCombinationsCount);
+        } else {
+          for (List<Vector> vectorCombination :
+              Generator.combination(allowable).multi(remainingLevel)) {
+            if (equation.isExpired()) {
+              return -1;
+            }
+            attemptedCombinationsCount++;
+            if (attemptedCombinationsCount % 1000000 == 0) {
+              System.out.println("Attempted combinations: " + attemptedCombinationsCount);
+            }
+            final Map<Vector, Long> occurrences =
+                vectorCombination.stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            final Vector nextCoefficients =
+                currentCoefficients.add(equation.getMatrix().coefficientsFrom(occurrences));
+            final Vector nextTotal = equation.getMatrix().getSum(nextCoefficients);
+            if (equation.addSolution(nextTotal, nextCoefficients)) {
+              System.out.println(
+                  "Found Solution: "
+                      + nextCoefficients
+                      + " Sum: "
+                      + nextCoefficients.sum()
+                      + " ("
+                      + attemptedCombinationsCount
+                      + " combinations)");
+            } else if (equation.getDesiredTotal().greaterThan(nextTotal)
+                && currentColumn < equation.getMatrix().getColumnCount()) {
+              equation.addClosestSolution(nextCoefficients);
+              attemptedCombinationsCount =
+                  solve(
+                      equation,
+                      currentColumn + 1,
+                      nextTotal,
+                      nextCoefficients,
+                      attemptedCombinationsCount);
+            }
           }
         }
       }
