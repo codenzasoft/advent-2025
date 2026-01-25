@@ -3,6 +3,8 @@ package com.codenzasoft.advent2025.day10;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.la4j.matrix.dense.Basic2DMatrix;
+import org.la4j.vector.dense.BasicVector;
 
 public record Matrix(List<Vector> rows) {
 
@@ -64,6 +66,10 @@ public record Matrix(List<Vector> rows) {
     return result;
   }
 
+  public List<Vector> getRowsWithHighOrderColumn(final int column) {
+    return rows().stream().filter(v -> v.getHighOrderColumnIndex() == column).toList();
+  }
+
   public Matrix removeRow(final int row) {
     final List<Vector> newRows = new ArrayList<>(rows());
     newRows.remove(row);
@@ -72,12 +78,21 @@ public record Matrix(List<Vector> rows) {
 
   public Matrix removeRows(final List<Integer> rowIndicies) {
     final List<Vector> newRows = new ArrayList<>();
-    for (int index = 0; index < rowIndicies.size(); index++) {
+    for (int index = 0; index < rows().size(); index++) {
       if (!rowIndicies.contains(index)) {
         newRows.add(rows().get(index));
       }
     }
     return new Matrix(newRows);
+  }
+
+  public Matrix removeDuplicateRows() {
+    final List<Vector> distinct = rows().stream().distinct().toList();
+    if (distinct.size() < getRowCount()) {
+      System.out.println("Removing (" + (getRowCount() - distinct.size()) + ") duplicate rows");
+      return new Matrix(distinct);
+    }
+    return this;
   }
 
   public Matrix reorderColumns(final List<Integer> columnIndicies) {
@@ -116,6 +131,14 @@ public record Matrix(List<Vector> rows) {
     return sum;
   }
 
+  public org.la4j.Vector getLa4jSum(final org.la4j.Vector coefficients) {
+    org.la4j.Vector sum = new BasicVector(getColumnCount());
+    for (int r = 0; r < rows().size(); r++) {
+      sum = sum.add(getRow(r).toLa4j().multiply(coefficients.get(r)));
+    }
+    return sum;
+  }
+
   public String toString() {
     final StringBuilder builder = new StringBuilder();
     builder.append("\n");
@@ -124,5 +147,27 @@ public record Matrix(List<Vector> rows) {
       builder.append("\n");
     }
     return builder.toString();
+  }
+
+  public Matrix flip() {
+    final List<Vector> newRows = new ArrayList<>();
+    for (int c = 0; c < getColumnCount(); c++) {
+      newRows.add(getColumn(c));
+    }
+    return new Matrix(newRows);
+  }
+
+  public org.la4j.Matrix toLa4j() {
+    return new Basic2DMatrix(toDoubles());
+  }
+
+  public double[][] toDoubles() {
+    final double[][] dRows = new double[getRowCount()][getColumnCount()];
+    for (int r = 0; r < getRowCount(); r++) {
+      for (int c = 0; c < getColumnCount(); c++) {
+        dRows[r][c] = getValue(r, c);
+      }
+    }
+    return dRows;
   }
 }

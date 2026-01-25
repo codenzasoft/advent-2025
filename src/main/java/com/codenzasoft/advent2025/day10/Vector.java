@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.la4j.vector.dense.BasicVector;
 
 public record Vector(List<Integer> values) {
 
@@ -12,6 +13,14 @@ public record Vector(List<Integer> values) {
     final List<Integer> list = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       list.add(value);
+    }
+    return new Vector(list);
+  }
+
+  public static Vector with(org.la4j.Vector vector) {
+    final List<Integer> list = new ArrayList<>();
+    for (int i = 0; i < vector.length(); i++) {
+      list.add(Double.valueOf(Math.floor(vector.get(i))).intValue());
     }
     return new Vector(list);
   }
@@ -30,6 +39,15 @@ public record Vector(List<Integer> values) {
       builder.append(values().get(i));
     }
     return Integer.parseInt(builder.toString(), 2);
+  }
+
+  public int getHighOrderColumnIndex() {
+    for (int i = 0; i < values().size(); i++) {
+      if (values().get(i) != 0) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   public int getReversedBinaryValue() {
@@ -56,6 +74,14 @@ public record Vector(List<Integer> values) {
     final List<Integer> newValues = new ArrayList<>();
     for (int i = 0; i < values.size(); i++) {
       newValues.add(values.get(i) * value);
+    }
+    return new Vector(newValues);
+  }
+
+  public Vector divide(final int value) {
+    final List<Integer> newValues = new ArrayList<>();
+    for (int i = 0; i < values.size(); i++) {
+      newValues.add(values.get(i) / value);
     }
     return new Vector(newValues);
   }
@@ -145,5 +171,17 @@ public record Vector(List<Integer> values) {
       }
     }
     return new Vector(newValues);
+  }
+
+  public org.la4j.Vector toLa4j() {
+    return new BasicVector(toDoubleArray());
+  }
+
+  public double[] toDoubleArray() {
+    final double[] result = new double[values().size()];
+    for (int i = 0; i < values().size(); i++) {
+      result[i] = values().get(i);
+    }
+    return result;
   }
 }

@@ -1,6 +1,6 @@
 package com.codenzasoft.advent2025.day10
 
-
+import org.junit.Ignore
 import spock.lang.Specification
 
 class TogglerSpec extends Specification {
@@ -28,6 +28,18 @@ class TogglerSpec extends Specification {
         min == 10
         parts == 10
     }
+
+//    def "test solving using la4j"() {
+//        setup:
+//        var machine = Machine.parse("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}")
+//        var equation = machine.getEquation()
+//
+//        when:
+//        var result = Toggler.useLa4j(equation)
+//
+//        then:
+//        result == 10
+//    }
 
     def "test solving a machine's joltage using min norm"() {
         setup:
@@ -105,11 +117,11 @@ class TogglerSpec extends Specification {
 
         when:
         int result = Toggler.part2(machines)
-//        int parts = Toggler.solveInParts(machines)
+        long la4j = Toggler.useLa4j(machines)
 
         then:
         result == 33
-//        SOLVING IN PARTS IS NOT WORKING
-//        parts == 33
+        la4j == 33
     }
+
 }

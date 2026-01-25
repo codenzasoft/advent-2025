@@ -32,20 +32,27 @@ public class Equation {
   }
 
   /**
-   * Returns a reduced {@link Equation} if the desired total of this equation contains any zeros.
-   * Any columns with zero totals can be removed from the search. Additionally, any rows with a
-   * non-zero value in those columns can be removed from the search, as they cannot be used. This
-   * reduces the number of combinations in the search space.
+   * Performs the following reductions in order returning an equivalent {@link Equation}.
+   *
+   * <ol>
+   *   <li>Duplicate rows are removed (leaving a single row for all duplicates).
+   *   <li>Removes any rows containing a non-zero value in a column associated with a zero sum (as
+   *       such rows cannot be used without exceeding a zero sum).
+   *   <li>Removes any columns with a zero sum.
+   *   <li>Remove duplicate rows again, in case the reduction creates more duplicates.
+   * </ol>
    *
    * @return An equivalent optimized {@link Equation}.
    */
   public Equation reduce() {
+    Matrix reduced = getMatrix().removeDuplicateRows();
+
     final List<Integer> zeroIndicies = getDesiredTotal().indiciesOf(0);
     if (zeroIndicies.isEmpty()) {
       return this;
     }
     final Vector newTotal = getDesiredTotal().removeIndicies(zeroIndicies);
-    Matrix newMatrix = getMatrix().removeColumns(zeroIndicies);
+    reduced = reduced.removeColumns(zeroIndicies);
     final List<Integer> rowsToRemove = new ArrayList<>();
     for (int row = 0; row < getMatrix().getRowCount(); row++) {
       for (int col : zeroIndicies) {
@@ -55,8 +62,11 @@ public class Equation {
         }
       }
     }
-    newMatrix = newMatrix.removeRows(rowsToRemove);
-    return new Equation(newMatrix, newTotal, expirationTime.orElse(null));
+    reduced = reduced.removeRows(rowsToRemove);
+    reduced = reduced.removeDuplicateRows();
+
+    // remove duplicate rows
+    return new Equation(reduced, newTotal, expirationTime.orElse(null));
   }
 
   /**
@@ -143,6 +153,10 @@ public class Equation {
 
   public Optional<Vector> getSolution() {
     return coefficientSolutions.stream().min(Comparator.comparing(Vector::sum));
+  }
+
+  public int getSolutionLimit() {
+    return getSolution().map(Vector::sum).orElse(Integer.MAX_VALUE);
   }
 
   public OptionalInt getSolutionSum() {

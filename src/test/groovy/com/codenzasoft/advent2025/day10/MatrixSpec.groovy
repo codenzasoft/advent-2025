@@ -76,6 +76,27 @@ class MatrixSpec extends Specification {
         result == columns
     }
 
+    def "test a theory"() {
+        setup:
+        var matrix = new Matrix([
+                vector([0,0,0,1]),
+                vector([0,1,0,1]),
+                vector([0,0,1,0]),
+                vector([0,0,1,1]),
+                vector([1,0,1,0]),
+                vector([1,1,0,0])
+        ])
+        var p1 = vector([3,5,4,7])
+        var e1 = new Equation(matrix, p1)
+
+        when:
+        var r1 = Toggler.useLa4j(e1)
+        var totals = matrix.getLa4jSum(r1)
+
+        then:
+        Math.floor(r1.sum()) == 10L
+    }
+
     def Vector vector(List<Integer> values) {
         return new Vector(values)
     }

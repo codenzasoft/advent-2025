@@ -23,7 +23,8 @@ dependencies {
             'org.apache.commons:commons-collections4:4.5.0',
             'org.jgrapht:jgrapht-core:1.5.2',
             'com.github.dpaukov:combinatoricslib3:3.4.0',
-            'gov.nist.math:jama:1.0.3'
+            'gov.nist.math:jama:1.0.3',
+            'org.la4j:la4j:0.6.0',
     )
 
     testRuntimeOnly(
