@@ -21,11 +21,7 @@ public class PuzzleOne {
     final List<Long> right = lists.get(1);
     Collections.sort(left);
     Collections.sort(right);
-    final List<Long> differeces = new ArrayList<>();
-    for (int i = 0; i < left.size(); i++) {
-      differeces.add(Math.abs(left.get(i) - right.get(i)));
-    }
-    return differeces.stream().reduce(0L, Long::sum);
+    return getDistance(left, right);
   }
 
   public static List<List<Long>> parseLists(final List<String> lines) {
@@ -39,5 +35,13 @@ public class PuzzleOne {
       }
     }
     return List.of(left, right);
+  }
+
+  public static long getDistance(final List<Long> left, final List<Long> right) {
+    long distance = 0;
+    for (int i = 0; i < left.size(); i++) {
+      distance += Math.abs(left.get(i) - right.get(i));
+    }
+    return distance;
   }
 }
