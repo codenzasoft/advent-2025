@@ -25,19 +25,6 @@ public record LetterGrid(char[][] grid) {
     return grid[0].length;
   }
 
-  public boolean matches(final int row, final int col, final LetterPattern pattern) {
-    int r = row;
-    int c = col;
-    for (int i = 0; i < pattern.length(); i++) {
-      if (!matches(r, c, pattern.get(i))) {
-        return false;
-      }
-      r += pattern.rowInc();
-      c += pattern.colInc();
-    }
-    return true;
-  }
-
   public boolean matches(final int row, final int col, char c) {
     if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length) {
       return false;

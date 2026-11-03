@@ -20,9 +20,11 @@ class Day4Spec extends Specification {
         ]
 
         when:
-        var count = new Day4().search(lines)
+        var count = new Day4().searchWord(lines)
+        var xCount = new Day4().searchGrid(lines)
 
         then:
         count == 18
+        xCount == 9
     }
 }
