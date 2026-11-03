@@ -1,7 +1,6 @@
-package com.codenzasoft.advent2024.puzzle1;
+package com.codenzasoft.advent2024.day1;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
-import com.codenzasoft.advent2025.day1.SafeCracker;
 
 import java.util.*;
 

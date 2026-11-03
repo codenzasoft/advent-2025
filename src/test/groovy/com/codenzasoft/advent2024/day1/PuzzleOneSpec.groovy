@@ -1,4 +1,4 @@
-package com.codenzasoft.advent2024.puzzle1
+package com.codenzasoft.advent2024.day1
 
 import spock.lang.Specification
 
