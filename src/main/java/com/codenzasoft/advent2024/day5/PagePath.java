@@ -34,6 +34,15 @@ public record PagePath(List<Integer> pages) {
     return new PagePath(new ArrayList<>(pages.reversed()));
   }
 
+  public boolean isSorted(EdgesAndPaths data) {
+    final List<Integer> sorted = sorted(data);
+    return sorted.equals(pages);
+  }
+
+  public List<Integer> sorted(EdgesAndPaths data) {
+    return pages.stream().map(data::getPageOrdering).sorted().map(PageNumber::page).toList();
+  }
+
   public boolean isEmpty() {
     return pages.isEmpty();
   }

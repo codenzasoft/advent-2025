@@ -40,8 +40,10 @@ class Day5Spec extends Specification {
         when:
         var data = EdgesAndPaths.parse(lines)
         var result = new Day5().validMiddlePageSum(data)
+        var fixed = new Day5().correctAndSumInvalidPaths(data)
 
         then:
         result == 143
+        fixed == 123
     }
 }
