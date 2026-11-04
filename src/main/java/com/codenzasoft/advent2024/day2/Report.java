@@ -28,7 +28,7 @@ public record Report(List<Long> levels) {
   }
 
   public boolean isDecreasing() {
-    for (int i = 0 ; i < levels.size() - 1 ; i++) {
+    for (int i = 0; i < levels.size() - 1; i++) {
       if (levels.get(i) <= levels.get(i + 1)) {
         return false;
       }
@@ -37,7 +37,7 @@ public record Report(List<Long> levels) {
   }
 
   public boolean isIncreasing() {
-    for (int i = 0 ; i < levels.size() - 1 ; i++) {
+    for (int i = 0; i < levels.size() - 1; i++) {
       if (levels.get(i) >= levels.get(i + 1)) {
         return false;
       }

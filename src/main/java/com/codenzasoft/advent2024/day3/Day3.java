@@ -1,9 +1,6 @@
 package com.codenzasoft.advent2024.day3;
 
-import com.codenzasoft.advent2024.day2.Report;
 import com.codenzasoft.advent2025.PuzzleHelper;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Day3 {
@@ -23,5 +20,4 @@ public class Day3 {
     final List<Multiplication> multiplications = new MulScanner().scanEnabled(lines);
     return multiplications.stream().mapToLong(Multiplication::value).sum();
   }
-
 }

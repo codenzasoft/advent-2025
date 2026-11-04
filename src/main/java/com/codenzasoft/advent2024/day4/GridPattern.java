@@ -3,8 +3,8 @@ package com.codenzasoft.advent2024.day4;
 import java.util.List;
 
 /**
- * A grid of letters to search for in a {@link LetterGrid}.
- * Any letters with a dot (.) do not have to match.
+ * A grid of letters to search for in a {@link LetterGrid}. Any letters with a dot (.) do not have
+ * to match.
  *
  * @param pattern
  */

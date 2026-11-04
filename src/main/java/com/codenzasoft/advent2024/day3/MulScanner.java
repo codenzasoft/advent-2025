@@ -7,20 +7,21 @@ import java.util.regex.Pattern;
 
 public class MulScanner {
 
-  public static final Pattern MULTIPLICATION_REGEX = Pattern.compile("mul\\((?<x>\\d+),(?<y>\\d+)\\)");
+  public static final Pattern MULTIPLICATION_REGEX =
+      Pattern.compile("mul\\((?<x>\\d+),(?<y>\\d+)\\)");
 
-  public static final Pattern MULTIPLICATION_DO_OR_DONT_REGEX = Pattern.compile(
-      "mul\\((?<x>\\d+),(?<y>\\d+)\\)|(?<do>do\\(\\))|(?<dont>don't\\(\\))");
+  public static final Pattern MULTIPLICATION_DO_OR_DONT_REGEX =
+      Pattern.compile("mul\\((?<x>\\d+),(?<y>\\d+)\\)|(?<do>do\\(\\))|(?<dont>don't\\(\\))");
 
   public List<Multiplication> scan(List<String> input) {
     List<Multiplication> multiplications = new ArrayList<>();
     for (String line : input) {
-        Matcher matcher = MULTIPLICATION_REGEX.matcher(line);
-        while (matcher.find()) {
-          final long x = Long.parseLong(matcher.group("x"));
-          final long y = Long.parseLong(matcher.group("y"));
-          multiplications.add(new Multiplication(x, y));
-        }
+      Matcher matcher = MULTIPLICATION_REGEX.matcher(line);
+      while (matcher.find()) {
+        final long x = Long.parseLong(matcher.group("x"));
+        final long y = Long.parseLong(matcher.group("y"));
+        multiplications.add(new Multiplication(x, y));
+      }
     }
     return multiplications;
   }
@@ -44,5 +45,4 @@ public class MulScanner {
     }
     return multiplications;
   }
-
 }

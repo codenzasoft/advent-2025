@@ -1,7 +1,6 @@
 package com.codenzasoft.advent2024.day1;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
-
 import java.util.*;
 
 public class PuzzleOne {
@@ -49,10 +48,10 @@ public class PuzzleOne {
     return distance;
   }
 
-  private static Map<Long,Integer> buildOccurrences(final List<Long> list) {
+  private static Map<Long, Integer> buildOccurrences(final List<Long> list) {
     final List<Long> sortedList = new ArrayList<>(list);
     Collections.sort(sortedList);
-    final Map<Long,Integer> occurrences = new HashMap<>();
+    final Map<Long, Integer> occurrences = new HashMap<>();
     long prevValue = sortedList.get(0);
     int count = 1;
     for (int i = 1; i < sortedList.size(); i++) {
@@ -71,7 +70,6 @@ public class PuzzleOne {
 
   public static long getSimilarity(final List<Long> left, final List<Long> right) {
     final Map<Long, Integer> occurrences = buildOccurrences(right);
-    return left.stream().map(
-        num -> occurrences.getOrDefault(num, 0) * num).mapToLong(n -> n).sum();
+    return left.stream().map(num -> occurrences.getOrDefault(num, 0) * num).mapToLong(n -> n).sum();
   }
 }
