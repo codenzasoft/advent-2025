@@ -15,20 +15,11 @@ public class Day5 {
         "The sum of middle page correct paths is: " + new Day5().validMiddlePageSum(data));
   }
 
-  public DirectedMultigraph<Integer, DefaultEdge> buildGraph(EdgesAndPaths data) {
-    final DirectedMultigraph<Integer, DefaultEdge> graph =
-        new DirectedMultigraph<>(DefaultEdge.class);
-    data.getVertexes().forEach(graph::addVertex);
-    data.edges().forEach(edge -> graph.addEdge(edge.from(), edge.to()));
-    return graph;
-  }
-
   public int validMiddlePageSum(EdgesAndPaths data) {
-    final DirectedMultigraph<Integer, DefaultEdge> graph = buildGraph(data);
-    // find correctly ordered paths
     final List<PagePath> correct = new ArrayList<>();
     for (final PagePath path : data.paths()) {
-      if (path.existsIn(graph)) {
+      final DirectedMultigraph<Integer, DefaultEdge> graph = path.buildGraph(data);
+      if (path.isCorrect(graph)) {
         correct.add(path);
         System.out.println("Valid Path: " + path);
       }

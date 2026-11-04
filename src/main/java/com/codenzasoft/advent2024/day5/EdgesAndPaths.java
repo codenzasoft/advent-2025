@@ -21,4 +21,11 @@ public record EdgesAndPaths(List<PageEdge> edges, List<PagePath> paths) {
         .flatMap(edge -> Stream.of(edge.from(), edge.to()))
         .collect(Collectors.toSet());
   }
+
+  public List<PageEdge> getRelevantEdges(final PagePath path) {
+    final Set<Integer> vertexes = path.vertexes();
+    return edges.stream()
+        .filter(edge -> vertexes.contains(edge.from()) && vertexes.contains(edge.to()))
+        .toList();
+  }
 }

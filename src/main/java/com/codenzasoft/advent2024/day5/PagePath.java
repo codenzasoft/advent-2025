@@ -30,8 +30,47 @@ public record PagePath(List<Integer> pages) {
     return new PagePath(tail);
   }
 
+  public PagePath reversed() {
+    return new PagePath(new ArrayList<>(pages.reversed()));
+  }
+
   public boolean isEmpty() {
     return pages.isEmpty();
+  }
+
+  public Set<Integer> vertexes() {
+    return new HashSet<>(pages);
+  }
+
+  public DirectedMultigraph<Integer, DefaultEdge> buildGraph(final EdgesAndPaths data) {
+    final DirectedMultigraph<Integer, DefaultEdge> graph =
+        new DirectedMultigraph<>(DefaultEdge.class);
+    vertexes().forEach(graph::addVertex);
+    data.getRelevantEdges(this).forEach(edge -> graph.addEdge(edge.from(), edge.to()));
+    return graph;
+  }
+
+  public boolean isCorrect(final DirectedMultigraph<Integer, DefaultEdge> graph) {
+    // return reversed().allPaths(graph).isEmpty();
+    List<GraphPath<Integer, DefaultEdge>> all = reversed().allPaths(graph);
+    return all.isEmpty();
+  }
+
+  public List<GraphPath<Integer, DefaultEdge>> allPaths(
+      final DirectedMultigraph<Integer, DefaultEdge> graph) {
+    final DijkstraShortestPath<Integer, DefaultEdge> dijkstra = new DijkstraShortestPath<>(graph);
+    final PagePath tail = tail();
+    final List<GraphPath<Integer, DefaultEdge>> paths = new ArrayList<>();
+    if (!tail.isEmpty()) {
+      for (final Integer page : tail.pages()) {
+        final GraphPath<Integer, DefaultEdge> path = dijkstra.getPath(source(), page);
+        if (path != null) {
+          paths.add(path);
+        }
+      }
+      paths.addAll(tail.allPaths(graph));
+    }
+    return paths;
   }
 
   public boolean existsIn(final DirectedMultigraph<Integer, DefaultEdge> graph) {
