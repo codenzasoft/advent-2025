@@ -20,9 +20,10 @@ class Day6Spec extends Specification {
         ]
 
         when:
-        var count = new Day6().traceRoute(lines)
+        var grid = new Day6().traceRoute(lines)
 
         then:
-        count == 41
+        grid.countVisitedPositions() == 41
+        grid.getLoopCounter() == 6
     }
 }

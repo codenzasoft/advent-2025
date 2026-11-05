@@ -7,13 +7,15 @@ public class Day6 {
 
   public static void main(String[] args) {
     List<String> lines = PuzzleHelper.getInputLines("2024/input-day-6.txt");
-    System.out.println("The sum of unique visited positions: " + new Day6().traceRoute(lines));
+    final LabGrid grid = new Day6().traceRoute(lines);
+    System.out.println("The sum of unique visited positions: " + grid.countVisitedPositions());
+    System.out.println("The number of potential loops: " + grid.getLoopCounter());
   }
 
-  public int traceRoute(List<String> input) {
+  public LabGrid traceRoute(List<String> input) {
     final LabGrid grid = LabGrid.parse(input);
     while (grid.move()) {}
     System.out.println(grid);
-    return grid.countVisitedPositions();
+    return grid;
   }
 }

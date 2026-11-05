@@ -1,17 +1,6 @@
 package com.codenzasoft.advent2024.day6;
 
-public enum GridEntry {
-  EMPTY('.'),
-  OBSTACLE('#'),
-  VISITED('X');
+public abstract class GridEntry {
 
-  private char display;
-
-  GridEntry(char display) {
-    this.display = display;
-  }
-
-  public char getDisplay() {
-    return display;
-  }
+  public abstract boolean isObstacle();
 }
