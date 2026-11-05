@@ -6,4 +6,9 @@ public class Obstacle extends GridEntry {
   public boolean isObstacle() {
     return true;
   }
+
+  @Override
+  public char getSymbol() {
+    return '#';
+  }
 }

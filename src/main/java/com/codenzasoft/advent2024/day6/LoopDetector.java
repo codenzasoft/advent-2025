@@ -53,25 +53,42 @@ public class LoopDetector {
    * @return a position that would create a loop if there were an obstacle there
    */
   public Optional<LabPosition> isLoop2(final LabPosition position, final Direction direction, final LabGrid grid) {
-    if (corners.size() < 3) {
-      return Optional.empty();
+    Optional<LabPosition> obstacle = findObstacle(position, direction.turnRight(), grid);
+    if (obstacle.isPresent()) {
+      return Optional.of(position.move(direction));
     }
-    final LabPosition anchor = corners.getFirst();
-    LabPosition obstacle = null;
-    switch (direction) {
-      case UP:
-      case DOWN:
-        if (position.row() == anchor.row()) {
-          obstacle = position.move(direction);
+    return Optional.empty();
+  }
+
+  /**
+   *
+   * @param position starting position
+   * @param direction direction to travel
+   * @param grid the grid
+   * @return
+   */
+  protected Optional<LabPosition> findObstacle(final LabPosition position, final Direction direction, final LabGrid grid) {
+    LabPosition prevPosition = position;
+    LabPosition nextPosition = prevPosition.move(direction);
+    while (grid.isContained(nextPosition)) {
+      final Optional<GridEntry> maybe = grid.getContent(nextPosition);
+      if (maybe.isPresent()) {
+        final GridEntry entry = maybe.get();
+        if (entry.isObstacle()) {
+          final Optional<GridEntry> maybePrev = grid.getContent(prevPosition);
+          if (maybePrev.isPresent() && maybePrev.get().isVisit()) {
+            final Visit visit = (Visit) maybePrev.get();
+            if (visit.getDirection() == direction) {
+              return Optional.of(nextPosition);
+            } else {
+              return Optional.empty();
+            }
+          }
         }
-        break;
-      case LEFT:
-      case RIGHT:
-        if (position.col() == anchor.col()) {
-          obstacle = position.move(direction);
-        }
-        break;
-    };
-    return Optional.ofNullable(obstacle);
+      }
+      prevPosition = nextPosition;
+      nextPosition = nextPosition.move(direction);
+    }
+    return Optional.empty();
   }
 }

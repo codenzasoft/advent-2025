@@ -13,6 +13,11 @@ public class Visit extends GridEntry {
     return false;
   }
 
+  @Override
+  public char getSymbol() {
+    return direction.symbol();
+  }
+
   public Direction getDirection() {
     return direction;
   }
