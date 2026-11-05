@@ -78,7 +78,7 @@ public class LoopDetector {
           final Optional<GridEntry> maybePrev = grid.getContent(prevPosition);
           if (maybePrev.isPresent() && maybePrev.get().isVisit()) {
             final Visit visit = (Visit) maybePrev.get();
-            if (visit.getDirection() == direction) {
+            if (visit.getDirection() == direction || visit.getDirection() == direction.turnRight()) {
               return Optional.of(nextPosition);
             } else {
               return Optional.empty();
