@@ -26,4 +26,29 @@ class Day6Spec extends Specification {
         grid.countVisitedPositions() == 41
         grid.getLoopCounter() == 6
     }
+
+    def "test floor map tracing"() {
+        setup:
+        var lines = [
+                "....#.....",
+                ".........#",
+                "..........",
+                "..#.......",
+                ".......#..",
+                "..........",
+                ".#..^.....",
+                "........#.",
+                "#.........",
+                "......#..."
+        ]
+
+        when:
+        var route = new Day6().buildRoute(lines)
+        var cycles = new Day6().cycleSearch(lines)
+
+        then:
+        route.uniquePositions().size() == 41
+        !route.isCycle()
+        cycles.size() == 6
+    }
 }

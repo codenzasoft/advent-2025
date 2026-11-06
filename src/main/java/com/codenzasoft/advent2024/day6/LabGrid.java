@@ -1,7 +1,5 @@
 package com.codenzasoft.advent2024.day6;
 
-import com.codenzasoft.advent2024.day5.PagePath;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +74,10 @@ public class LabGrid {
   }
 
   public boolean isContained(final LabPosition position) {
-    return position.row() >= 0 && position.row() < this.rows.length && position.col() >= 0 && position.col() < this.rows[0].length;
+    return position.row() >= 0
+        && position.row() < this.rows.length
+        && position.col() >= 0
+        && position.col() < this.rows[0].length;
   }
 
   public boolean move() {
@@ -92,9 +93,7 @@ public class LabGrid {
       visit(nextPosition, direction);
       position = nextPosition;
       final Optional<LabPosition> loopObstacle = loopDetector.isLoop2(position, direction, this);
-      if (loopObstacle.map(this::isContained).orElse(false)) {
-        obstacles.add(loopObstacle.get());
-      }
+      loopObstacle.ifPresent(obstacles::add);
     } else if (nextEntry.get().isObstacle()) {
       // hit an obstacle
       direction = direction.turnRight();
@@ -104,9 +103,7 @@ public class LabGrid {
       visit(nextPosition, direction);
       position = nextPosition;
       final Optional<LabPosition> loopObstacle = loopDetector.isLoop2(position, direction, this);
-      if (loopObstacle.map(this::isContained).orElse(false)) {
-        obstacles.add(loopObstacle.get());
-      }
+      loopObstacle.ifPresent(obstacles::add);
     }
     return true;
   }
@@ -119,7 +116,7 @@ public class LabGrid {
     int count = 0;
     for (int row = 0; row < this.rows.length; row++) {
       for (int col = 0; col < this.rows[0].length; col++) {
-        final Optional<GridEntry> entry = getContent(new LabPosition(row,col));
+        final Optional<GridEntry> entry = getContent(new LabPosition(row, col));
         if (entry.isPresent()) {
           if (entry.get().isVisit()) {
             count++;
@@ -134,7 +131,7 @@ public class LabGrid {
     final StringBuilder builder = new StringBuilder();
     for (int row = 0; row < this.rows.length; row++) {
       for (int col = 0; col < this.rows[0].length; col++) {
-        final LabPosition position = new LabPosition(row,col);
+        final LabPosition position = new LabPosition(row, col);
         if (obstacles.contains(position)) {
           builder.append('O');
         } else {

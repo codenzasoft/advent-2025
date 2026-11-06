@@ -16,7 +16,6 @@ public class LoopDetector {
   }
 
   /**
-   *
    * @param position The current position
    * @param direction The current direction
    * @return a position that would create a loop if there were an obstacle
@@ -40,34 +39,43 @@ public class LoopDetector {
           obstacle = position.move(direction);
         }
         break;
-    };
+    }
+    ;
     return Optional.ofNullable(obstacle);
   }
 
   /**
-   *
    * @param position The current position
    * @param direction The current direction
    * @param grid The grid
-   *
    * @return a position that would create a loop if there were an obstacle there
    */
-  public Optional<LabPosition> isLoop2(final LabPosition position, final Direction direction, final LabGrid grid) {
+  public Optional<LabPosition> isLoop2(
+      final LabPosition position, final Direction direction, final LabGrid grid) {
+    // locate any obstacle that has been passed by before and would be hit if turned now
     Optional<LabPosition> obstacle = findObstacle(position, direction.turnRight(), grid);
     if (obstacle.isPresent()) {
-      return Optional.of(position.move(direction));
+      // check if an obstacle can be placed in next entry to force a turn
+      final LabPosition obstaclePosition = position.move(direction);
+      if (grid.isContained(obstaclePosition)) {
+        // check if there is already an obstacle there
+        Optional<GridEntry> whatsThere = grid.getContent(obstaclePosition);
+        if (!whatsThere.map(GridEntry::isObstacle).orElse(false)) {
+          return Optional.of(obstaclePosition);
+        }
+      }
     }
     return Optional.empty();
   }
 
   /**
-   *
    * @param position starting position
    * @param direction direction to travel
    * @param grid the grid
    * @return
    */
-  protected Optional<LabPosition> findObstacle(final LabPosition position, final Direction direction, final LabGrid grid) {
+  protected Optional<LabPosition> findObstacle(
+      final LabPosition position, final Direction direction, final LabGrid grid) {
     LabPosition prevPosition = position;
     LabPosition nextPosition = prevPosition.move(direction);
     while (grid.isContained(nextPosition)) {
@@ -78,7 +86,8 @@ public class LoopDetector {
           final Optional<GridEntry> maybePrev = grid.getContent(prevPosition);
           if (maybePrev.isPresent() && maybePrev.get().isVisit()) {
             final Visit visit = (Visit) maybePrev.get();
-            if (visit.getDirection() == direction || visit.getDirection() == direction.turnRight()) {
+            if (visit.getDirection() == direction
+                || visit.getDirection() == direction.turnRight()) {
               return Optional.of(nextPosition);
             } else {
               return Optional.empty();
