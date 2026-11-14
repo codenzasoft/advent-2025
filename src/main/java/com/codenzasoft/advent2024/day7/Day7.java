@@ -10,6 +10,7 @@ public class Day7 {
     List<String> lines = PuzzleHelper.getInputLines("2024/input-day-7.txt");
     final List<Equation> equations = parseEquations(lines);
     System.out.println("The answer to part one is: " + new Day7().solvePartOne(equations));
+    System.out.println("The answer to part two is: " + new Day7().solvePartTwo(equations));
   }
 
   public static List<Equation> parseEquations(final List<String> lines) {
@@ -17,9 +18,17 @@ public class Day7 {
   }
 
   public long solvePartOne(List<Equation> equations) {
+    return solveWith(equations, List.of(Operator.ADDITION, Operator.MULTIPLICATION));
+  }
+
+  public long solvePartTwo(List<Equation> equations) {
+    return solveWith(equations, List.of(Operator.ADDITION, Operator.MULTIPLICATION, Operator.CONCATENATION));
+  }
+
+  public long solveWith(List<Equation> equations, List<Operator> operators) {
     long result = 0;
     for (final Equation equation : equations) {
-      if (equation.isSolvable()) {
+      if (equation.isSolvableUsing(operators)) {
         result += equation.testValue();
       }
     }

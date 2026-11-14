@@ -1,10 +1,11 @@
 package com.codenzasoft.advent2024.day7;
 
+import java.util.List;
+
 public record OperatorPermutation(Operator[] permutation) {
 
-  public static OperatorPermutation with(int numOperators, int permutationNumber) {
-    final Operator[] theOperators = Operator.values();
-    String operatorMask = Integer.toString(permutationNumber, theOperators.length);
+  public static OperatorPermutation with(int numOperators, int permutationNumber, List<Operator> possibleOperators) {
+    String operatorMask = Integer.toString(permutationNumber, possibleOperators.size());
     // pad with zeros
     while (operatorMask.length() < numOperators) {
       operatorMask = "0" + operatorMask;
@@ -13,7 +14,7 @@ public record OperatorPermutation(Operator[] permutation) {
     for (int i = 0; i < operatorMask.length(); i++) {
       final String text = String.valueOf(operatorMask.charAt(i));
       final int num = Integer.parseInt(text);
-      operators[i] = theOperators[num];
+      operators[i] = possibleOperators.get(num);
     }
     return new OperatorPermutation(operators);
   }

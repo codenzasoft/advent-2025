@@ -1,5 +1,7 @@
 package com.codenzasoft.advent2024.day7;
 
+import java.util.List;
+
 public record Equation(long testValue, long[] operands) {
 
   public static Equation parse(String input) {
@@ -34,11 +36,11 @@ public record Equation(long testValue, long[] operands) {
     return operands.length;
   }
 
-  public boolean isSolvable() {
-    final int numOperators = getNumberOfOperands() - 1;
-    long numPermutations = (long) Math.pow(Operator.values().length, numOperators);
+  public boolean isSolvableUsing(List<Operator> operators) {
+    final int numOperation = getNumberOfOperands() - 1;
+    long numPermutations = (long) Math.pow(operators.size(), numOperation);
     for (int i = 0; i < numPermutations; i++) {
-      final OperatorPermutation permutation = OperatorPermutation.with(numOperators, i);
+      final OperatorPermutation permutation = OperatorPermutation.with(numOperation, i, operators);
       if (isSolved(permutation.permutation())) {
         return true;
       }

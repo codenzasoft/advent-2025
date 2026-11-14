@@ -15,12 +15,27 @@ class Day7Spec extends Specification {
         equation.testValue() == 3267L
         equation.operands() == [81L, 40L, 27L]
         equation.valueWith(operators) == 81L + 40L + 27L
-        equation.isSolvable()
+        equation.isSolvableUsing(List.of(Operator.ADDITION, Operator.MULTIPLICATION))
+    }
+
+    def "test that concatenation works"() {
+        when:
+        var equation = Equation.parse("7290: 6 8 6 15")
+        var operators = new Operator[3]
+        operators[0] = Operator.MULTIPLICATION
+        operators[1] = Operator.CONCATENATION
+        operators[2] = Operator.MULTIPLICATION
+
+        then:
+        equation.testValue() == 7290L
+        equation.operands() == [6L, 8L, 6L, 15L]
+        equation.valueWith(operators) == 7290L
+        equation.isSolvableUsing(List.of(Operator.MULTIPLICATION, Operator.CONCATENATION, Operator.MULTIPLICATION))
     }
 
     def "test that a permutation can be created"() {
         when:
-        var permutation = OperatorPermutation.with(3, 0)
+        var permutation = OperatorPermutation.with(3, 0, List.of(Operator.ADDITION, Operator.MULTIPLICATION))
 
         then:
         permutation.permutation()[0] == Operator.ADDITION
@@ -44,8 +59,10 @@ class Day7Spec extends Specification {
 
         when:
         var result = new Day7().solvePartOne(Day7.parseEquations(lines))
+        var two = new Day7().solvePartTwo(Day7.parseEquations(lines))
 
         then:
         result == 3749
+        two == 11387
     }
 }
