@@ -2,10 +2,7 @@ package com.codenzasoft.advent2024.day6;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class Day6 {
 
@@ -37,13 +34,14 @@ public class Day6 {
     final FloorMap map = FloorMap.parse(lines);
     final Route safeRoute = new RouteBuilder(map).build();
     Set<LabPosition> cycles = new HashSet<>();
-    for (final Step step : safeRoute.getSteps()) {
-      final LabPosition block = step.position().move(step.direction());
-      if (map.isInBounds(block) && !map.obstacles().contains(block)) {
-        final FloorMap trialMap = map.addObstacle(block);
+    List<Step> blocks = new ArrayList<>(safeRoute.getSteps());
+    blocks.removeFirst(); // never block the first position
+    for (final Step block : blocks) {
+      if (map.isInBounds(block.position())) {
+        final FloorMap trialMap = map.addObstacle(block.position());
         final Route alternateRoute = new RouteBuilder(trialMap).build();
         if (alternateRoute.isCycle()) {
-          cycles.add(block);
+          cycles.add(block.position());
         }
       }
     }

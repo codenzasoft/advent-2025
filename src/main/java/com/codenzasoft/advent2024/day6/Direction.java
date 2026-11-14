@@ -6,9 +6,9 @@ public enum Direction {
   DOWN(1, 0, 'v'),
   LEFT(0, -1, '<');
 
-  private int rowInc;
-  private int colInc;
-  private char symbol;
+  private final int rowInc;
+  private final int colInc;
+  private final char symbol;
 
   Direction(int rowInc, int colInc, char symbol) {
     this.rowInc = rowInc;
