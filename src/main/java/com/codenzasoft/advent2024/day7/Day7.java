@@ -1,7 +1,6 @@
 package com.codenzasoft.advent2024.day7;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
-
 import java.util.List;
 
 public class Day7 {
@@ -22,7 +21,8 @@ public class Day7 {
   }
 
   public long solvePartTwo(List<Equation> equations) {
-    return solveWith(equations, List.of(Operator.ADDITION, Operator.MULTIPLICATION, Operator.CONCATENATION));
+    return solveWith(
+        equations, List.of(Operator.ADDITION, Operator.MULTIPLICATION, Operator.CONCATENATION));
   }
 
   public long solveWith(List<Equation> equations, List<Operator> operators) {

@@ -2,7 +2,6 @@ package com.codenzasoft.advent2024.day6;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Route {
 
@@ -33,5 +32,4 @@ public class Route {
   public List<LabPosition> uniquePositions() {
     return steps.stream().map(Step::position).distinct().toList();
   }
-
 }

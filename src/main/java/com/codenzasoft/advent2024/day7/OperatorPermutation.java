@@ -4,7 +4,8 @@ import java.util.List;
 
 public record OperatorPermutation(Operator[] permutation) {
 
-  public static OperatorPermutation with(int numOperators, int permutationNumber, List<Operator> possibleOperators) {
+  public static OperatorPermutation with(
+      int numOperators, int permutationNumber, List<Operator> possibleOperators) {
     String operatorMask = Integer.toString(permutationNumber, possibleOperators.size());
     // pad with zeros
     while (operatorMask.length() < numOperators) {

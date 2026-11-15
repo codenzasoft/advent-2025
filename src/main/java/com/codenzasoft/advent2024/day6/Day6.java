@@ -1,7 +1,6 @@
 package com.codenzasoft.advent2024.day6;
 
 import com.codenzasoft.advent2025.PuzzleHelper;
-
 import java.util.*;
 
 public class Day6 {

@@ -23,7 +23,7 @@ public record Equation(long testValue, long[] operands) {
     long value = operands[0];
     for (int i = 0; i < operators.length; i++) {
       final Operator operator = operators[i];
-      value = operator.apply(value, operands[i+1]);
+      value = operator.apply(value, operands[i + 1]);
     }
     return value;
   }
@@ -47,5 +47,4 @@ public record Equation(long testValue, long[] operands) {
     }
     return false;
   }
-
 }

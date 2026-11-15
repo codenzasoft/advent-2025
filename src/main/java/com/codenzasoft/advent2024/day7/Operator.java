@@ -1,12 +1,12 @@
 package com.codenzasoft.advent2024.day7;
 
 public enum Operator {
-
   ADDITION('+'),
   MULTIPLICATION('*'),
   CONCATENATION('|');
 
   private final char display;
+
   Operator(char display) {
     this.display = display;
   }
@@ -22,5 +22,4 @@ public enum Operator {
       case CONCATENATION -> Long.parseLong(Long.toString(a) + Long.toString(b));
     };
   }
-
 }
