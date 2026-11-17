@@ -14,4 +14,15 @@ class Day9Spec extends Specification {
         then:
         checksum == 1928
     }
+
+    def "test the example checksum can be computed for part 2"() {
+        setup:
+        var line = "2333133121414131402"
+
+        when:
+        var checksum = new Day9().solvePart2(line)
+
+        then:
+        checksum == 2858
+    }
 }

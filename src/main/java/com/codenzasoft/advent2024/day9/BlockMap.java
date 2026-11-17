@@ -32,6 +32,23 @@ public class BlockMap {
     }
   }
 
+  public void compressFiles() {
+    int endOfFileIndex = lastFileIndex;
+    long fileId = blocks[endOfFileIndex];
+    int beginOfFileIndex = seekBeginOffsetOfFile(fileId, endOfFileIndex);
+    while (beginOfFileIndex > 0) {
+      int fileSize = endOfFileIndex - beginOfFileIndex + 1;
+    }
+  }
+
+  private int seekBeginOffsetOfFile(final long fileId, final int endOfFileIndex) {
+    int prevIndex = endOfFileIndex - 1;
+    while (blocks[prevIndex] == fileId) {
+      prevIndex--;
+    }
+    return prevIndex + 1;
+  }
+
   public long checksum() {
     long checksum = 0;
     for (int i = 0; i < blocks.length; i++) {
@@ -43,13 +60,18 @@ public class BlockMap {
     return checksum;
   }
 
-  public static BlockMap parse(String input) {
+  public static List<Integer> parseBlockSizes(String input) {
     final List<Integer> blockSizes = new ArrayList<>();
     for (int i = 0; i < input.length(); i++) {
       final char c = input.charAt(i);
       final Integer value = Integer.parseInt(String.valueOf(c));
       blockSizes.add(value);
     }
+    return blockSizes;
+  }
+
+  public static BlockMap parse(String input) {
+    final List<Integer> blockSizes = parseBlockSizes(input);
     final int totalBlocks = blockSizes.stream().mapToInt(blockSize -> blockSize).sum();
     final Long[] blocks = new Long[totalBlocks];
     int index = 0;

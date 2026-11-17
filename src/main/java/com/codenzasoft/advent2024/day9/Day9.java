@@ -8,11 +8,18 @@ public class Day9 {
   public static void main(String[] args) {
     List<String> lines = PuzzleHelper.getInputLines("2024/input-day-9.txt");
     System.out.println("The checksum for part one is: " + new Day9().solvePart1(lines.getFirst()));
+    System.out.println("The checksum for part two is: " + new Day9().solvePart2(lines.getFirst()));
   }
 
   public long solvePart1(final String input) {
     final BlockMap map = BlockMap.parse(input);
     map.compress();
     return map.checksum();
+  }
+
+  public long solvePart2(final String input) {
+    final BlockList list = BlockList.parse(input);
+    list.compress();
+    return list.toBlockMap().checksum();
   }
 }
