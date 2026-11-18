@@ -10,7 +10,8 @@ public class BlockList {
 
   public BlockList(final LinkedList<Block> blocks) {
     this.blocks = blocks;
-    final Map<Integer, List<Block>> temp = blocks.stream().filter(Block::isFree).collect(Collectors.groupingBy(Block::length));
+    final Map<Integer, List<Block>> temp =
+        blocks.stream().filter(Block::isFree).collect(Collectors.groupingBy(Block::length));
     freeBlocks = new HashMap<>(temp.size());
     for (Map.Entry<Integer, List<Block>> entry : temp.entrySet()) {
       freeBlocks.put(entry.getKey(), new TreeSet<>(entry.getValue()));
@@ -49,7 +50,7 @@ public class BlockList {
       if (file.fileId() % 100 == 0) {
         System.out.println("Working on file: " + file.fileId());
       }
-      final TreeSet<Block> candidatesOfLength = findFreeBlocksOfMinLength(file.length());
+      final TreeSet<Block> candidatesOfLength = findLeftMostFreeBlocksOfMinLength(file.length());
       if (candidatesOfLength != null) {
         final Block candidate = candidatesOfLength.first();
         if (candidate.index() < file.index()) {
@@ -62,7 +63,8 @@ public class BlockList {
           blocks.remove(freeIndex);
           blocks.add(freeIndex, new FileBlocks(free.index(), file.fileId(), file.length()));
           if (free.length() > file.length()) {
-            final FreeBlocks leftOver = new FreeBlocks(free.index() + file.length(), free.length() - file.length());
+            final FreeBlocks leftOver =
+                new FreeBlocks(free.index() + file.length(), free.length() - file.length());
             blocks.add(freeIndex + 1, leftOver);
             addFreeBlock(leftOver);
             fileIndex++;
@@ -74,20 +76,27 @@ public class BlockList {
     }
   }
 
-  private TreeSet<Block> findFreeBlocksOfMinLength(final int length) {
+  private TreeSet<Block> findLeftMostFreeBlocksOfMinLength(final int length) {
     int size = length;
+    TreeSet<Block> candidates = null;
+    int leftMostIndex = Integer.MAX_VALUE;
     while (size < 10) {
-      TreeSet<Block> candidates = freeBlocks.get(size);
-      if (candidates != null && !candidates.isEmpty()) {
-        return candidates;
+      TreeSet<Block> next = freeBlocks.get(size);
+      if (next != null && !next.isEmpty()) {
+        final Block peek = next.first();
+        if (peek.index() < leftMostIndex) {
+          leftMostIndex = peek.index();
+          candidates = next;
+        }
       }
       size++;
     }
-    return null;
+    return candidates;
   }
 
   private void addFreeBlock(final FreeBlocks free) {
-    final TreeSet<Block> blocksOfSize = freeBlocks.computeIfAbsent(free.length(), k -> new TreeSet<>());
+    final TreeSet<Block> blocksOfSize =
+        freeBlocks.computeIfAbsent(free.length(), k -> new TreeSet<>());
     blocksOfSize.add(free);
   }
 

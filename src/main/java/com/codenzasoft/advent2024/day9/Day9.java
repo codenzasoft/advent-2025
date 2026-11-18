@@ -20,6 +20,8 @@ public class Day9 {
   public long solvePart2(final String input) {
     final BlockList list = BlockList.parse(input);
     list.compress();
-    return list.toBlockMap().checksum();
+    final BlockMap map = list.toBlockMap();
+    System.out.println(map);
+    return map.checksum();
   }
 }

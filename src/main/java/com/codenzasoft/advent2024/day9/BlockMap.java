@@ -60,6 +60,18 @@ public class BlockMap {
     return checksum;
   }
 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    for (Long block : blocks) {
+      if (block != null) {
+        sb.append(block);
+      } else {
+        sb.append(".");
+      }
+    }
+    return sb.toString();
+  }
+
   public static List<Integer> parseBlockSizes(String input) {
     final List<Integer> blockSizes = new ArrayList<>();
     for (int i = 0; i < input.length(); i++) {
