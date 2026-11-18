@@ -21,4 +21,12 @@ public record Stone(long number) {
     // 3. The old stone's number multiplied by 2024
     return List.of(new Stone(number * 2024));
   }
+
+  public long countStones(final int blinks) {
+    if (blinks == 0) {
+      return 1;
+    }
+    final List<Stone> children = blink();
+    return children.stream().mapToLong(stone -> stone.countStones(blinks - 1)).sum();
+  }
 }
