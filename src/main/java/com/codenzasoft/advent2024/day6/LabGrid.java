@@ -7,12 +7,12 @@ import java.util.Optional;
 public class LabGrid {
 
   private final GridEntry[][] rows;
-  private LabPosition position;
+  private Position position;
   private Direction direction;
   private final LoopDetector loopDetector = new LoopDetector();
-  private final List<LabPosition> obstacles = new ArrayList<>();
+  private final List<Position> obstacles = new ArrayList<>();
 
-  public LabGrid(final GridEntry[][] rows, final LabPosition position, final Direction direction) {
+  public LabGrid(final GridEntry[][] rows, final Position position, final Direction direction) {
     this.rows = rows;
     this.position = position;
     this.direction = direction;
@@ -23,7 +23,7 @@ public class LabGrid {
     final int colCount = lines.getFirst().length();
     final GridEntry[][] rows = new GridEntry[rowCount][colCount];
     int row = 0;
-    LabPosition position = null;
+    Position position = null;
     Direction direction = null;
     for (final String line : lines) {
       for (int col = 0; col < colCount; col++) {
@@ -36,22 +36,22 @@ public class LabGrid {
             rows[row][col] = new Obstacle();
             break;
           case '^':
-            position = new LabPosition(row, col);
+            position = new Position(row, col);
             direction = Direction.UP;
             rows[row][col] = new Visit(direction);
             break;
           case '>':
-            position = new LabPosition(row, col);
+            position = new Position(row, col);
             direction = Direction.RIGHT;
             rows[row][col] = new Visit(direction);
             break;
           case 'v':
-            position = new LabPosition(row, col);
+            position = new Position(row, col);
             direction = Direction.DOWN;
             rows[row][col] = new Visit(direction);
             break;
           case '<':
-            position = new LabPosition(row, col);
+            position = new Position(row, col);
             direction = Direction.LEFT;
             rows[row][col] = new Visit(direction);
             break;
@@ -62,18 +62,18 @@ public class LabGrid {
     return new LabGrid(rows, position, direction);
   }
 
-  void visit(final LabPosition position, final Direction direction) {
+  void visit(final Position position, final Direction direction) {
     this.rows[position.row()][position.col()] = new Visit(direction);
   }
 
-  public Optional<GridEntry> getContent(final LabPosition position) {
+  public Optional<GridEntry> getContent(final Position position) {
     if (isContained(position)) {
       return Optional.ofNullable(this.rows[position.row()][position.col()]);
     }
     return Optional.empty();
   }
 
-  public boolean isContained(final LabPosition position) {
+  public boolean isContained(final Position position) {
     return position.row() >= 0
         && position.row() < this.rows.length
         && position.col() >= 0
@@ -81,7 +81,7 @@ public class LabGrid {
   }
 
   public boolean move() {
-    final LabPosition nextPosition = position.move(direction);
+    final Position nextPosition = position.move(direction);
     if (!isContained(nextPosition)) {
       // gone off grid
       return false;
@@ -92,7 +92,7 @@ public class LabGrid {
       // first visit
       visit(nextPosition, direction);
       position = nextPosition;
-      final Optional<LabPosition> loopObstacle = loopDetector.isLoop2(position, direction, this);
+      final Optional<Position> loopObstacle = loopDetector.isLoop2(position, direction, this);
       loopObstacle.ifPresent(obstacles::add);
     } else if (nextEntry.get().isObstacle()) {
       // hit an obstacle
@@ -102,7 +102,7 @@ public class LabGrid {
       // secondary visit
       visit(nextPosition, direction);
       position = nextPosition;
-      final Optional<LabPosition> loopObstacle = loopDetector.isLoop2(position, direction, this);
+      final Optional<Position> loopObstacle = loopDetector.isLoop2(position, direction, this);
       loopObstacle.ifPresent(obstacles::add);
     }
     return true;
@@ -116,7 +116,7 @@ public class LabGrid {
     int count = 0;
     for (int row = 0; row < this.rows.length; row++) {
       for (int col = 0; col < this.rows[0].length; col++) {
-        final Optional<GridEntry> entry = getContent(new LabPosition(row, col));
+        final Optional<GridEntry> entry = getContent(new Position(row, col));
         if (entry.isPresent()) {
           if (entry.get().isVisit()) {
             count++;
@@ -131,7 +131,7 @@ public class LabGrid {
     final StringBuilder builder = new StringBuilder();
     for (int row = 0; row < this.rows.length; row++) {
       for (int col = 0; col < this.rows[0].length; col++) {
-        final LabPosition position = new LabPosition(row, col);
+        final Position position = new Position(row, col);
         if (obstacles.contains(position)) {
           builder.append('O');
         } else {

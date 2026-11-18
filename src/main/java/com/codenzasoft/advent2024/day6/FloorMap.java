@@ -8,18 +8,18 @@ import java.util.*;
  * @param obstacles The (row, col) coordinates position of obstacles in the map
  * @param origin The starting position and direction
  */
-public record FloorMap(int numRows, int numCols, Set<LabPosition> obstacles, Step origin) {
+public record FloorMap(int numRows, int numCols, Set<Position> obstacles, Step origin) {
 
   public static FloorMap parse(final List<String> lines) {
     final int rowCount = lines.size();
     final int colCount = lines.getFirst().length();
-    final Set<LabPosition> obstacles = new HashSet<>();
+    final Set<Position> obstacles = new HashSet<>();
     Step origin = null;
     int row = 0;
     for (final String line : lines) {
       for (int col = 0; col < colCount; col++) {
         final char value = line.charAt(col);
-        final LabPosition position = new LabPosition(row, col);
+        final Position position = new Position(row, col);
         switch (value) {
           case '.':
             break;
@@ -46,7 +46,7 @@ public record FloorMap(int numRows, int numCols, Set<LabPosition> obstacles, Ste
   }
 
   public Optional<Step> nextStep(final Step prevStep) {
-    final LabPosition nextPosition = prevStep.position().move(prevStep.direction());
+    final Position nextPosition = prevStep.position().move(prevStep.direction());
     if (isInBounds(nextPosition)) {
       if (obstacles.contains(nextPosition)) {
         return nextStep(new Step(prevStep.position(), prevStep.direction().turnRight()));
@@ -56,15 +56,15 @@ public record FloorMap(int numRows, int numCols, Set<LabPosition> obstacles, Ste
     return Optional.empty();
   }
 
-  public boolean isInBounds(final LabPosition position) {
+  public boolean isInBounds(final Position position) {
     return position.row() >= 0
         && position.row() < numRows
         && position.col() >= 0
         && position.col() < numCols;
   }
 
-  public FloorMap addObstacle(LabPosition obstacle) {
-    final Set<LabPosition> obstaclePositions = new HashSet<>(obstacles);
+  public FloorMap addObstacle(Position obstacle) {
+    final Set<Position> obstaclePositions = new HashSet<>(obstacles);
     obstaclePositions.add(obstacle);
     return new FloorMap(numRows, numCols, Set.copyOf(obstaclePositions), origin);
   }

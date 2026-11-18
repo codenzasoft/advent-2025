@@ -6,9 +6,9 @@ import java.util.Optional;
 
 public class LoopDetector {
 
-  final List<LabPosition> corners = new ArrayList<>();
+  final List<Position> corners = new ArrayList<>();
 
-  public void addCorner(final LabPosition position) {
+  public void addCorner(final Position position) {
     if (corners.size() == 3) {
       corners.removeFirst();
     }
@@ -20,12 +20,12 @@ public class LoopDetector {
    * @param direction The current direction
    * @return a position that would create a loop if there were an obstacle
    */
-  public Optional<LabPosition> isLoop(final LabPosition position, final Direction direction) {
+  public Optional<Position> isLoop(final Position position, final Direction direction) {
     if (corners.size() < 3) {
       return Optional.empty();
     }
-    final LabPosition anchor = corners.getFirst();
-    LabPosition obstacle = null;
+    final Position anchor = corners.getFirst();
+    Position obstacle = null;
     switch (direction) {
       case UP:
       case DOWN:
@@ -50,13 +50,13 @@ public class LoopDetector {
    * @param grid The grid
    * @return a position that would create a loop if there were an obstacle there
    */
-  public Optional<LabPosition> isLoop2(
-      final LabPosition position, final Direction direction, final LabGrid grid) {
+  public Optional<Position> isLoop2(
+      final Position position, final Direction direction, final LabGrid grid) {
     // locate any obstacle that has been passed by before and would be hit if turned now
-    Optional<LabPosition> obstacle = findObstacle(position, direction.turnRight(), grid);
+    Optional<Position> obstacle = findObstacle(position, direction.turnRight(), grid);
     if (obstacle.isPresent()) {
       // check if an obstacle can be placed in next entry to force a turn
-      final LabPosition obstaclePosition = position.move(direction);
+      final Position obstaclePosition = position.move(direction);
       if (grid.isContained(obstaclePosition)) {
         // check if there is already an obstacle there
         Optional<GridEntry> whatsThere = grid.getContent(obstaclePosition);
@@ -74,10 +74,10 @@ public class LoopDetector {
    * @param grid the grid
    * @return
    */
-  protected Optional<LabPosition> findObstacle(
-      final LabPosition position, final Direction direction, final LabGrid grid) {
-    LabPosition prevPosition = position;
-    LabPosition nextPosition = prevPosition.move(direction);
+  protected Optional<Position> findObstacle(
+      final Position position, final Direction direction, final LabGrid grid) {
+    Position prevPosition = position;
+    Position nextPosition = prevPosition.move(direction);
     while (grid.isContained(nextPosition)) {
       final Optional<GridEntry> maybe = grid.getContent(nextPosition);
       if (maybe.isPresent()) {

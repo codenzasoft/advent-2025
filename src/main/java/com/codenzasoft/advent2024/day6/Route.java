@@ -29,7 +29,7 @@ public class Route {
     return steps.getLast();
   }
 
-  public List<LabPosition> uniquePositions() {
+  public List<Position> uniquePositions() {
     return steps.stream().map(Step::position).distinct().toList();
   }
 }

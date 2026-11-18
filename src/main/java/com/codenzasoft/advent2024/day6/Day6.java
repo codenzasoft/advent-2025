@@ -13,7 +13,7 @@ public class Day6 {
 
     final Route route = new Day6().buildRoute(lines);
     System.out.println("The sum of unique locations: " + route.uniquePositions().size());
-    final Set<LabPosition> cycles = new Day6().cycleSearch(lines);
+    final Set<Position> cycles = new Day6().cycleSearch(lines);
     System.out.println("The number blocks that create cycles: " + cycles.size());
   }
 
@@ -29,10 +29,10 @@ public class Day6 {
     return new RouteBuilder(map).build();
   }
 
-  public Set<LabPosition> cycleSearch(List<String> lines) {
+  public Set<Position> cycleSearch(List<String> lines) {
     final FloorMap map = FloorMap.parse(lines);
     final Route safeRoute = new RouteBuilder(map).build();
-    Set<LabPosition> cycles = new HashSet<>();
+    Set<Position> cycles = new HashSet<>();
     List<Step> blocks = new ArrayList<>(safeRoute.getSteps());
     blocks.removeFirst(); // never block the first position
     for (final Step block : blocks) {
