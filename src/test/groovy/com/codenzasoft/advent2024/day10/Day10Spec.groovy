@@ -15,7 +15,7 @@ class Day10Spec extends Specification {
 
         when:
         var map = TopoMap.parse(lines)
-        var result = new TrailSearch().calculateScore(map)
+        var result = new TrailSearch().calculateDistinctSummits(map)
 
         then:
         result == 1
@@ -36,9 +36,11 @@ class Day10Spec extends Specification {
 
         when:
         var map = TopoMap.parse(lines)
-        var result = new TrailSearch().calculateScore(map)
+        var summits = new TrailSearch().calculateDistinctSummits(map)
+        var trails = new TrailSearch().calculateDistinctTrails(map)
 
         then:
-        result == 36
+        summits == 36
+        trails == 81
     }
 }

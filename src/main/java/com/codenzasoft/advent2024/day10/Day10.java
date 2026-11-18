@@ -7,11 +7,19 @@ public class Day10 {
 
   public static void main(String[] args) {
     List<String> lines = PuzzleHelper.getInputLines("2024/input-day-10.txt");
-    System.out.println("The score for part one is: " + new Day10().solvePart1(lines));
+    System.out.println(
+        "The score for part one is (distinct summits): " + new Day10().solvePart1(lines));
+    System.out.println(
+        "The score for part one is (distinct trails): " + new Day10().solvePart2(lines));
   }
 
-  public int solvePart1(List<String> lines) {
+  public long solvePart1(List<String> lines) {
     final TopoMap map = TopoMap.parse(lines);
-    return new TrailSearch().calculateScore(map);
+    return new TrailSearch().calculateDistinctSummits(map);
+  }
+
+  public long solvePart2(List<String> lines) {
+    final TopoMap map = TopoMap.parse(lines);
+    return new TrailSearch().calculateDistinctTrails(map);
   }
 }
