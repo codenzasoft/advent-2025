@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2024.day11;
 
 import java.util.List;
+import java.util.Optional;
 
 public record Stone(long number) {
 
@@ -22,11 +23,18 @@ public record Stone(long number) {
     return List.of(new Stone(number * 2024));
   }
 
-  public long countStones(final int blinks) {
-    if (blinks == 0) {
+  public long countStones(final int blinksRemaining, final StoneBlinkCache cache) {
+    if (blinksRemaining == 0) {
       return 1;
     }
+    final Optional<Long> cached = cache.get(this, blinksRemaining);
+    if (cached.isPresent()) {
+      return cached.get();
+    }
     final List<Stone> children = blink();
-    return children.stream().mapToLong(stone -> stone.countStones(blinks - 1)).sum();
+    final long sum =
+        children.stream().mapToLong(stone -> stone.countStones(blinksRemaining - 1, cache)).sum();
+    cache.cache(this, blinksRemaining, sum);
+    return sum;
   }
 }

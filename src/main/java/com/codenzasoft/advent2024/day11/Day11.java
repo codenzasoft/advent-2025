@@ -24,8 +24,9 @@ public class Day11 {
     // break the list up
     final StoneList list = StoneList.parse(input);
     long result = 0;
+    final StoneBlinkCache cache = new StoneBlinkCache();
     for (final Stone stone : list.stones()) {
-      result += stone.countStones(blinks);
+      result += stone.countStones(blinks, cache);
     }
     return result;
   }
