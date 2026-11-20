@@ -17,7 +17,11 @@ class Day12Spec extends Specification {
         var map = GardenMap.parse(lines)
         var regions = map.buildRegions()
         var regionA = regions.stream().filter {r -> r.plantType() == 'A'}.findFirst().orElse(null)
-        var price = new Day12().computeTotalPrice(lines)
+        var price = new Day12().computeTotalPerimeterPrice(lines)
+        var sidesA = regionA.computeSides(map)
+        var regionC = regions.stream().filter {r -> r.plantType() == 'C'}.findFirst().orElse(null)
+        var sidesC = regionC.computeSides(map)
+        var sidePrice = new Day12().computeTotalSidePrice(lines)
 
         then:
         regions.size() == 5
@@ -25,6 +29,9 @@ class Day12Spec extends Specification {
         regionA.computePerimeter(map) == 10
         regionA.getArea() == 4
         price == 140
+        sidesA.size() == 4
+        sidesC.size() == 8
+        sidePrice == 80
     }
 
     def "test region discovery with interior islands"() {
@@ -40,9 +47,11 @@ class Day12Spec extends Specification {
         when:
         var map = GardenMap.parse(lines)
         var regions = map.buildRegions()
+        var sidePrice = new Day12().computeTotalSidePrice(lines)
 
         then:
         regions.size() == 5
+        sidePrice == 436
     }
 
     def "test price calc of larger example"() {
@@ -61,7 +70,7 @@ class Day12Spec extends Specification {
         ]
 
         when:
-        var price = new Day12().computeTotalPrice(lines)
+        var price = new Day12().computeTotalPerimeterPrice(lines)
 
         then:
         price == 1930
