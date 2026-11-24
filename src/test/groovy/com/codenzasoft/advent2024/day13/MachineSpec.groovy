@@ -1,5 +1,6 @@
 package com.codenzasoft.advent2024.day13
 
+import com.codenzasoft.advent2024.day12.Day12
 import spock.lang.Specification
 
 class MachineSpec extends Specification {
@@ -26,12 +27,16 @@ class MachineSpec extends Specification {
 
         when:
         var machines = Machine.parse(lines)
-        var machine = machines.get(1)
+        var m0 = machines.get(0)
+        var machine1 = machines.get(1)
+        var tokens = new Day13().solvePart1(lines)
 
         then:
         machines.size() == 4
-        machine.a() == new Vector(26, 66)
-        machine.b() == new Vector(67, 21)
-        machine.result() == new Vector(12748, 12176)
+        machine1.a() == new Vector(26, 66)
+        machine1.b() == new Vector(67, 21)
+        machine1.result() == new Vector(12748, 12176)
+        m0.solve() == new Vector(80, 40)
+        tokens == 480
     }
 }
