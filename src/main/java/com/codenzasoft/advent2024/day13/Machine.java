@@ -7,7 +7,7 @@ import org.apache.commons.math3.linear.*;
 
 public record Machine(Vector a, Vector b, Vector result) {
 
-  private static final double EPSILON = 1e-8;
+  private static final double EPSILON = 1e-2;
 
   public static List<Machine> parse(final List<String> input) {
     final Iterator<String> iterator = input.iterator();

@@ -1,6 +1,7 @@
 package com.codenzasoft.advent2024.day13
 
 import com.codenzasoft.advent2024.day12.Day12
+import org.apache.commons.math3.linear.SingularMatrixException
 import spock.lang.Specification
 
 class MachineSpec extends Specification {
@@ -38,5 +39,34 @@ class MachineSpec extends Specification {
         machine1.result() == new Vector(12748, 12176)
         m0.solve() == new Vector(80, 40)
         tokens == 480
+    }
+
+    def "test a single machine"() {
+        setup:
+        def a = new Vector(94, 34)
+        def b = new Vector(22, 67)
+        def p1 = new Vector(8400, 5400)
+        def m1 = new Machine(a, b, p1)
+
+        when:
+        def r1 = m1.solve()
+
+        then:
+        r1.x() == 80
+        r1.y() == 40
+    }
+
+    def "test a single machine with modified y intercept"() {
+        setup:
+        def a = new Vector(26, 66)
+        def b = new Vector(67, 21)
+        def p1 = new Vector(10000000012748, 10000000012176)
+        def m1 = new Machine(a, b, p1)
+
+        when:
+        def r1 = m1.solve()
+
+        then:
+        r1 != null
     }
 }

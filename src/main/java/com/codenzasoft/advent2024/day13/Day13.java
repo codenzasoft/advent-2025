@@ -18,9 +18,7 @@ public class Day13 {
     for (Machine machine : machines) {
       try {
         final Vector answer = machine.solve();
-        if (answer.x() <= 100 && answer.y() <= 100) {
-          tokens += 3 * answer.x() + answer.y();
-        }
+        tokens += 3 * answer.x() + answer.y();
       } catch (final SingularMatrixException e) {
         // not solvable
       }
@@ -38,9 +36,7 @@ public class Day13 {
                 machine.result().x() + 10000000000000L, machine.result().y() + 10000000000000L);
         final Machine modified = new Machine(machine.a(), machine.b(), modifiedResult);
         final Vector answer = modified.solve();
-        if (answer.x() <= 100 && answer.y() <= 100) {
-          tokens += 3 * answer.x() + answer.y();
-        }
+        tokens += 3 * answer.x() + answer.y();
       } catch (final SingularMatrixException e) {
         // not solvable
       }
