@@ -7,7 +7,7 @@ import org.apache.commons.math3.linear.*;
 
 public record Machine(Vector a, Vector b, Vector result) {
 
-  private static final double EPSILON = 1e-5;
+  private static final double EPSILON = 1e-8;
 
   public static List<Machine> parse(final List<String> input) {
     final Iterator<String> iterator = input.iterator();
@@ -42,8 +42,7 @@ public record Machine(Vector a, Vector b, Vector result) {
     DecompositionSolver solver = new LUDecomposition(coefficients).getSolver();
     RealVector solution = solver.solve(constants);
     if (isIntegers(solution)) {
-      return new Vector(
-          (int) Math.round(solution.getEntry(0)), (int) Math.round(solution.getEntry(1)));
+      return new Vector(Math.round(solution.getEntry(0)), Math.round(solution.getEntry(1)));
     }
     throw new SingularMatrixException();
   }
