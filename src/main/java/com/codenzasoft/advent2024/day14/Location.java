@@ -30,4 +30,20 @@ public record Location(int x, int y) implements Comparable<Location> {
     }
     return Integer.compare(this.y(), o.y());
   }
+
+  public Location up() {
+    return new Location(this.x(), this.y() - 1);
+  }
+
+  public Location down() {
+    return new Location(this.x(), this.y() + 1);
+  }
+
+  public Location left() {
+    return new Location(this.x() - 1, this.y());
+  }
+
+  public Location right() {
+    return new Location(this.x() + 1, this.y());
+  }
 }

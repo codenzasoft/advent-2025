@@ -21,4 +21,15 @@ class PlotterSpec extends Specification {
         grid.quadrantOf(new Location(5,2)).isEmpty()
         grid.quadrantOf(new Location(2,3)).isEmpty()
     }
+
+    def "test detection of a mirrored line"() {
+        when:
+        var grid = new Grid(11, 7)
+        var points = [new Location(2,2), new Location(8, 2)]
+        var plotter = new Plotter([], grid)
+
+        then:
+        plotter.isMirrored(points)
+        plotter.isMirrored([new Location(5,3)])
+    }
 }

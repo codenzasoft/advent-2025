@@ -30,8 +30,7 @@ public class Day14 {
 
   public int solvePart2(List<String> lines, final Grid grid) {
     final Plotter plotter = Plotter.parse(lines, grid);
-    final int count = plotter.moveUntilSymmetric();
-    System.out.println(plotter.toString());
-    return count;
+    final int moves = plotter.trySome(10000);
+    return moves;
   }
 }
