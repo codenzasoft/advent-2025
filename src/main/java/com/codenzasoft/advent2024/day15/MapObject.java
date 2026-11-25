@@ -44,21 +44,13 @@ public record MapObject(Position anchor, int width, int height, Type type) {
   }
 
   public List<Position> getAdjacentPositions(Direction direction) {
-    List<Position> positions = null;
-    switch (direction) {
-      case UP:
-        positions = getRow(0);
-        break;
-      case DOWN:
-        positions = getRow(height - 1);
-        break;
-      case LEFT:
-        positions = getCol(0);
-        break;
-      case RIGHT:
-        positions = getCol(width - 1);
-        break;
-    }
+    List<Position> positions =
+        switch (direction) {
+          case UP -> getRow(0);
+          case DOWN -> getRow(height - 1);
+          case LEFT -> getCol(0);
+          case RIGHT -> getCol(width - 1);
+        };
     return positions.stream().map(position -> position.move(direction)).toList();
   }
 

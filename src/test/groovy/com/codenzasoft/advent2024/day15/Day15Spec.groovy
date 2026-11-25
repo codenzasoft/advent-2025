@@ -1,5 +1,6 @@
 package com.codenzasoft.advent2024.day15
 
+import com.codenzasoft.advent2024.day6.Direction
 import com.codenzasoft.advent2024.day6.Position
 import spock.lang.Specification
 
@@ -38,6 +39,24 @@ class Day15Spec extends Specification {
         object.contains(new Position(0,1))
         !object.contains(new Position(0,2))
         !object.contains(new Position(1,0))
+    }
+
+    def "test adjacent positions"() {
+        setup:
+        def object = new MapObject(new Position(1, 1), 2, 1, Type.BOX)
+
+        when:
+        def adj = object.getAdjacentPositions(direction)
+
+        then:
+        adj == expected
+
+        where:
+        direction           || expected
+        Direction.UP        || [new Position(0, 1), new Position(0, 2)]
+        Direction.DOWN      || [new Position(2, 1), new Position(2, 2)]
+        Direction.LEFT      || [new Position(1, 0)]
+        Direction.RIGHT     || [new Position(1, 3)]
     }
 
     def "test the larger example"() {
