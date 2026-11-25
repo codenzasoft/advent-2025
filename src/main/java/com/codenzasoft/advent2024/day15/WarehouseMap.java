@@ -6,30 +6,32 @@ import java.util.*;
 
 public record WarehouseMap(int rows, int cols, List<MapObject> objects) {
 
-  public static WarehouseMap parse(List<String> input) {
+  public static WarehouseMap parse(List<String> input, int objectWidth) {
     final int rows = input.size();
-    final int cols = input.getFirst().length();
+    final int mapCols = input.getFirst().length() * objectWidth;
     List<MapObject> objects = new ArrayList<>();
     for (int row = 0; row < rows; row++) {
       final String line = input.get(row);
-      for (int col = 0; col < cols; col++) {
+      for (int col = 0; col < line.length(); col++) {
         final char symbol = line.charAt(col);
         switch (symbol) {
           case '#':
-            objects.add(new MapObject(new Position(row, col), 1, 1, Type.WALL));
+            objects.add(
+                new MapObject(new Position(row, col * objectWidth), objectWidth, 1, Type.WALL));
             break;
           case 'O':
-            objects.add(new MapObject(new Position(row, col), 1, 1, Type.BOX));
+            objects.add(
+                new MapObject(new Position(row, col * objectWidth), objectWidth, 1, Type.BOX));
             break;
           case '@':
-            objects.add(new MapObject(new Position(row, col), 1, 1, Type.ROBOT));
+            objects.add(new MapObject(new Position(row, col * objectWidth), 1, 1, Type.ROBOT));
             break;
           default:
             break;
         }
       }
     }
-    return new WarehouseMap(rows, cols, List.copyOf(objects));
+    return new WarehouseMap(rows, mapCols, List.copyOf(objects));
   }
 
   public static List<Direction> buildDirections(List<String> input) {
@@ -59,23 +61,12 @@ public record WarehouseMap(int rows, int cols, List<MapObject> objects) {
     return objects.stream().filter(o -> o.contains(position)).findFirst();
   }
 
-  public boolean isInBounds(Position position) {
-    return position.row() > 0
-        && position.row() < rows()
-        && position.col() > 0
-        && position.col() < cols();
-  }
-
   public MapObject getRobot() {
     return objects.stream().filter(o -> o.type().equals(Type.ROBOT)).findFirst().orElseThrow();
   }
 
   public long boxGpsSum() {
-    return objects.stream().filter(o -> o.type().equals(Type.BOX)).mapToLong(this::gps).sum();
-  }
-
-  public long gps(MapObject mapObject) {
-    return mapObject.anchor().row() * 100L + mapObject.anchor().col();
+    return objects.stream().filter(o -> o.type().equals(Type.BOX)).mapToLong(MapObject::gps).sum();
   }
 
   public String toString() {
@@ -85,7 +76,7 @@ public record WarehouseMap(int rows, int cols, List<MapObject> objects) {
         final Position position = new Position(row, col);
         final Optional<MapObject> mapObject = getObject(position);
         if (mapObject.isPresent()) {
-          builder.append(mapObject.get().toString());
+          builder.append(mapObject.get().toString(position));
         } else {
           builder.append(".");
         }

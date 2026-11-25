@@ -10,9 +10,9 @@ public record MapObject(Position anchor, int width, int height, Type type) {
 
   public boolean contains(Position position) {
     return position.row() >= anchor.row()
-        && position.row() < anchor.row() + width
+        && position.row() < anchor.row() + height
         && position.col() >= anchor.col()
-        && position.col() < anchor.col() + height;
+        && position.col() < anchor.col() + width;
   }
 
   public MapObject move(Direction direction) {
@@ -78,11 +78,26 @@ public record MapObject(Position anchor, int width, int height, Type type) {
     return positions;
   }
 
-  public String toString() {
-    return switch (type) {
-      case WALL -> "#";
-      case ROBOT -> "@";
-      case BOX -> "O";
-    };
+  public long gps() {
+    return anchor().row() * 100L + anchor().col();
+  }
+
+  public String toString(Position position) {
+    switch (type) {
+      case WALL:
+        return "#";
+      case ROBOT:
+        return "@";
+      case BOX:
+        if (width == height) {
+          return "O";
+        }
+        if (position.equals(anchor)) {
+          return "[";
+        }
+        return "]";
+    }
+    ;
+    return "";
   }
 }

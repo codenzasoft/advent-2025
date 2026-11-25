@@ -10,12 +10,13 @@ public class Day15 {
 
   public static void main(String[] args) {
     List<String> lines = PuzzleHelper.getInputLines("2024/input-day-15.txt");
-    System.out.println("The answer to part 1 is: " + new Day15().solvePart1(lines));
+    System.out.println("The answer to part 1 is: " + new Day15().solvePart(lines, 1));
+    System.out.println("The answer to part 2 is: " + new Day15().solvePart(lines, 2));
   }
 
-  public static Pair<WarehouseMap, List<Direction>> parse(List<String> input) {
+  public static Pair<WarehouseMap, List<Direction>> parse(List<String> input, int objectWidth) {
     final List<List<String>> segments = split(input);
-    final WarehouseMap map = WarehouseMap.parse(segments.get(0));
+    final WarehouseMap map = WarehouseMap.parse(segments.get(0), objectWidth);
     final List<Direction> directions = WarehouseMap.buildDirections(segments.get(1));
     return new Pair<>(map, directions);
   }
@@ -37,15 +38,15 @@ public class Day15 {
     return List.of(map, directions);
   }
 
-  public long solvePart1(final List<String> input) {
-    final Pair<WarehouseMap, List<Direction>> result = parse(input);
+  public long solvePart(final List<String> input, final int objectWidth) {
+    final Pair<WarehouseMap, List<Direction>> result = parse(input, objectWidth);
     WarehouseMap map = result.getFirst();
     final List<Direction> directions = result.getSecond();
     for (Direction direction : directions) {
       map = map.moveRobot(direction);
-      System.out.println("Move: " + direction.symbol());
-      System.out.println(map);
-      System.out.println();
+      //      System.out.println("Move: " + direction.symbol());
+      //      System.out.println(map);
+      //      System.out.println();
     }
     return map.boxGpsSum();
   }
