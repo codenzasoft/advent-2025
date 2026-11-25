@@ -16,6 +16,15 @@ public enum Direction {
     this.symbol = symbol;
   }
 
+  public static Direction fromSymbol(char symbol) {
+    for (Direction direction : Direction.values()) {
+      if (direction.symbol == symbol) {
+        return direction;
+      }
+    }
+    return null;
+  }
+
   public int rowInc() {
     return rowInc;
   }
