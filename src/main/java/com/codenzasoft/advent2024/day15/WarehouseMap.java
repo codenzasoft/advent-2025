@@ -4,35 +4,32 @@ import com.codenzasoft.advent2024.day6.Direction;
 import com.codenzasoft.advent2024.day6.Position;
 import java.util.*;
 
-public record WarehouseMap(
-    int rows, int cols, Set<Position> walls, Set<Position> boxes, Position robot) {
+public record WarehouseMap(int rows, int cols, List<MapObject> objects) {
 
   public static WarehouseMap parse(List<String> input) {
     final int rows = input.size();
-    final int cols = input.get(0).length();
-    Set<Position> walls = new HashSet<>();
-    Set<Position> boxes = new HashSet<>();
-    Position robot = null;
+    final int cols = input.getFirst().length();
+    List<MapObject> objects = new ArrayList<>();
     for (int row = 0; row < rows; row++) {
       final String line = input.get(row);
       for (int col = 0; col < cols; col++) {
         final char symbol = line.charAt(col);
         switch (symbol) {
           case '#':
-            walls.add(new Position(row, col));
+            objects.add(new MapObject(new Position(row, col), 1, 1, Type.WALL));
             break;
           case 'O':
-            boxes.add(new Position(row, col));
+            objects.add(new MapObject(new Position(row, col), 1, 1, Type.BOX));
             break;
           case '@':
-            robot = new Position(row, col);
+            objects.add(new MapObject(new Position(row, col), 1, 1, Type.ROBOT));
             break;
           default:
             break;
         }
       }
     }
-    return new WarehouseMap(rows, cols, Set.copyOf(walls), Set.copyOf(boxes), robot);
+    return new WarehouseMap(rows, cols, List.copyOf(objects));
   }
 
   public static List<Direction> buildDirections(List<String> input) {
@@ -47,51 +44,19 @@ public record WarehouseMap(
 
   // TODO:
   public WarehouseMap moveRobot(Direction direction) {
-    final List<Position> moves = new ArrayList<>();
-    if (canMove(robot(), direction, moves)) {
-      final Set<Position> newBoxes = new HashSet<>(boxes);
-      moves.forEach(newBoxes::remove);
-      moves.forEach(move -> newBoxes.add(move.move(direction)));
-      return new WarehouseMap(rows, cols, walls, Set.copyOf(newBoxes), robot.move(direction));
+    final List<MapObject> toMove = new ArrayList<>();
+    final MapObject robot = getRobot();
+    if (robot.attemptMove(direction, this, toMove)) {
+      final List<MapObject> newMapObjects = new ArrayList<>(objects);
+      toMove.forEach(newMapObjects::remove);
+      toMove.forEach(mapObject -> newMapObjects.add(mapObject.move(direction)));
+      return new WarehouseMap(rows, cols, newMapObjects);
     }
     return this;
   }
 
-  public boolean canMove(Position position, Direction direction, List<Position> boxesToMove) {
-    final Position destination = position.move(direction);
-    if (isInBounds(destination)) {
-      if (isEmpty(destination)) {
-        if (!robot().equals(position)) {
-          boxesToMove.add(position);
-        }
-        return true;
-      }
-      if (isWall(destination)) {
-        return false;
-      }
-      if (isBox(destination)) {
-        final boolean ok = canMove(destination, direction, boxesToMove);
-        if (ok) {
-          if (!robot().equals(position)) {
-            boxesToMove.add(position);
-          }
-        }
-        return ok;
-      }
-    }
-    return false;
-  }
-
-  public boolean isEmpty(Position position) {
-    return !(walls.contains(position) || boxes.contains(position) || robot().equals(position));
-  }
-
-  public boolean isBox(Position position) {
-    return boxes.contains(position);
-  }
-
-  public boolean isWall(Position position) {
-    return walls.contains(position);
+  public Optional<MapObject> getObject(Position position) {
+    return objects.stream().filter(o -> o.contains(position)).findFirst();
   }
 
   public boolean isInBounds(Position position) {
@@ -101,12 +66,16 @@ public record WarehouseMap(
         && position.col() < cols();
   }
 
-  public long boxGpsSum() {
-    return boxes().stream().mapToLong(this::gps).sum();
+  public MapObject getRobot() {
+    return objects.stream().filter(o -> o.type().equals(Type.ROBOT)).findFirst().orElseThrow();
   }
 
-  public long gps(Position position) {
-    return position.row() * 100L + position.col();
+  public long boxGpsSum() {
+    return objects.stream().filter(o -> o.type().equals(Type.BOX)).mapToLong(this::gps).sum();
+  }
+
+  public long gps(MapObject mapObject) {
+    return mapObject.anchor().row() * 100L + mapObject.anchor().col();
   }
 
   public String toString() {
@@ -114,14 +83,11 @@ public record WarehouseMap(
     for (int row = 0; row < rows(); row++) {
       for (int col = 0; col < cols(); col++) {
         final Position position = new Position(row, col);
-        if (isEmpty(position)) {
+        final Optional<MapObject> mapObject = getObject(position);
+        if (mapObject.isPresent()) {
+          builder.append(mapObject.get().toString());
+        } else {
           builder.append(".");
-        } else if (isWall(position)) {
-          builder.append("#");
-        } else if (isBox(position)) {
-          builder.append("O");
-        } else if (robot().equals(position)) {
-          builder.append("@");
         }
       }
       builder.append("\n");

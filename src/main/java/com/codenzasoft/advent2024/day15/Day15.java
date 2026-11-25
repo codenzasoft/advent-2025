@@ -43,9 +43,9 @@ public class Day15 {
     final List<Direction> directions = result.getSecond();
     for (Direction direction : directions) {
       map = map.moveRobot(direction);
-      //      System.out.println("Move: " + direction.symbol());
-      //      System.out.println(map);
-      //      System.out.println();
+      System.out.println("Move: " + direction.symbol());
+      System.out.println(map);
+      System.out.println();
     }
     return map.boxGpsSum();
   }
