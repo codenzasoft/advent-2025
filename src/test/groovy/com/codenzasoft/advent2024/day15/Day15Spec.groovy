@@ -29,29 +29,6 @@ class Day15Spec extends Specification {
         part1 == 2028
     }
 
-    def "test the GPS sum with width 1"() {
-        setup:
-        var lines = [
-                "##########",
-                "#.O.O.OOO#",
-                "#........#",
-                "#OO......#",
-                "#OO@.....#",
-                "#O#.....O#",
-                "#O.....OO#",
-                "#O.....OO#",
-                "#OO....OO#",
-                "##########"
-        ]
-        var map1 = WarehouseMap.parse(lines, 1)
-
-        when:
-        var result1 = map1.boxGpsSum()
-
-        then:
-        result1 == 10092
-    }
-
     def "test map object contains"() {
         when:
         def object = new MapObject(new Position(0, 0), 2, 1, Type.BOX)
@@ -90,9 +67,11 @@ class Day15Spec extends Specification {
         ]
 
         when:
+        var part1 = new Day15().solvePart(lines, 1)
         var part2 = new Day15().solvePart(lines, 2)
 
         then:
+        part1 == 10092
         part2 == 9021
     }
 
