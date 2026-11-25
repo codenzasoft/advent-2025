@@ -5,6 +5,7 @@ import com.codenzasoft.advent2024.day6.Position;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public record MapObject(Position anchor, int width, int height, Type type) {
 
@@ -22,7 +23,7 @@ public record MapObject(Position anchor, int width, int height, Type type) {
     return this;
   }
 
-  public boolean attemptMove(Direction direction, WarehouseMap map, List<MapObject> objectsToMove) {
+  public boolean attemptMove(Direction direction, WarehouseMap map, Set<MapObject> objectsToMove) {
     if (type.equals(Type.WALL)) {
       return false;
     }

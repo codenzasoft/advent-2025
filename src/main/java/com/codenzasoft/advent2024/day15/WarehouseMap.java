@@ -46,7 +46,7 @@ public record WarehouseMap(int rows, int cols, List<MapObject> objects) {
 
   // TODO:
   public WarehouseMap moveRobot(Direction direction) {
-    final List<MapObject> toMove = new ArrayList<>();
+    final Set<MapObject> toMove = new HashSet<>();
     final MapObject robot = getRobot();
     if (robot.attemptMove(direction, this, toMove)) {
       final List<MapObject> newMapObjects = new ArrayList<>(objects);
